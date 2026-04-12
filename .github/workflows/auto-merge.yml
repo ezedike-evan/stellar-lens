@@ -1,0 +1,49 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Automatically merges Dependabot PRs once all CI checks pass.
+#           Only auto-merges patch and minor updates — major version bumps
+#           require human review.
+# Triggers: pull_request_target — opened, synchronize (Dependabot only)
+# Paths:    None — event-driven, no path filter
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Auto Merge
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto Merge Dependabot PR
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@d7267f607e9d3fb96fc2fbe83e0af444713e90b7 # v2.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Approve patch and minor updates
+        if: >
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        uses: hmarr/auto-approve-action@44888193675f29a83e04faf4002fa8c0b537b1e2 # v4.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_PAT }}
+
+      - name: Enable auto-merge for patch and minor updates
+        if: >
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        uses: peter-evans/enable-pull-request-automerge@a660677d5469627102a1c1e11409dd063606628 # v3.0.0
+        with:
+          token: ${{ secrets.GITHUB_PAT }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash

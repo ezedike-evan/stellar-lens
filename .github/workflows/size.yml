@@ -1,0 +1,104 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Enforces a maximum bundle size for the published SDK. Prevents
+#           accidental dependency bloat. Posts a size report as a PR comment.
+#           Fails if the gzipped dist/index.js exceeds 50KB.
+# Triggers: pull_request targeting main
+# Paths:    packages/sdk/src/**, packages/sdk/package.json, this workflow file
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Size
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/sdk/src/**/*.ts'
+      - 'packages/sdk/package.json'
+      - '.github/workflows/size.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  size-check:
+    name: Bundle Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@fe02b74f3b4a5a8605f988b4c83c31faf2e897ef # v4.0.0
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build SDK
+        run: pnpm --filter stellar-lens build
+
+      - name: Check bundle size
+        id: size
+        run: |
+          LIMIT_KB=50
+          LIMIT_BYTES=$((LIMIT_KB * 1024))
+          DIST_FILE="packages/sdk/dist/index.js"
+
+          if [ ! -f "$DIST_FILE" ]; then
+            echo "ERROR: $DIST_FILE not found after build."
+            exit 1
+          fi
+
+          GZIP_BYTES=$(gzip -c "$DIST_FILE" | wc -c)
+          GZIP_KB=$(echo "scale=2; $GZIP_BYTES / 1024" | bc)
+
+          echo "gzip_bytes=$GZIP_BYTES" >> $GITHUB_OUTPUT
+          echo "gzip_kb=$GZIP_KB" >> $GITHUB_OUTPUT
+          echo "limit_kb=$LIMIT_KB" >> $GITHUB_OUTPUT
+
+          if [ "$GZIP_BYTES" -gt "$LIMIT_BYTES" ]; then
+            echo "passed=false" >> $GITHUB_OUTPUT
+          else
+            echo "passed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Post size comment
+        uses: marocchino/sticky-pull-request-comment@52423e84c5db7ba852ec7f85ac5901c2820c65f0 # v2.9.0
+        if: always()
+        with:
+          header: bundle-size
+          message: |
+            ### Bundle Size Report
+
+            | File | Gzipped Size | Limit | Status |
+            |------|-------------|-------|--------|
+            | `dist/index.js` | ${{ steps.size.outputs.gzip_kb }} KB | ${{ steps.size.outputs.limit_kb }} KB | ${{ steps.size.outputs.passed == 'true' && '✅ Pass' || '❌ Fail' }} |
+
+      - name: Fail if size limit exceeded
+        if: steps.size.outputs.passed == 'false'
+        run: |
+          echo "Bundle size ${{ steps.size.outputs.gzip_kb }}KB exceeds the ${{ steps.size.outputs.limit_kb }}KB gzipped limit."
+          exit 1

@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Label configuration for actions/labeler.
+# Applied automatically by .github/workflows/label.yml on every PR.
+# ─────────────────────────────────────────────────────────────────────────────
+
+sdk:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/sdk/src/**'
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/sdk/tests/**'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - '*.md'
+          - 'packages/*/README.md'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/package.json'
+          - 'pnpm-lock.yaml'
+
+demo:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/demo/**'
+
+vscode:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/vscode-extension/**'
