@@ -9,12 +9,16 @@ node_modules/
 
 # Build outputs
 dist/
+dist-types/
 build/
 out/
 .next/
 .nuxt/
 .output/
 .cache/
+
+# Rust / WASM
+pkg/
 
 # Environment variables
 .env
@@ -23,6 +27,7 @@ out/
 .env.test.local
 .env.production.local
 .env.*.local
+*.local
 
 # Logs
 logs/
