@@ -3,15 +3,23 @@
   "version": "1.0.0",
   "description": "Developer SDK for the Stellar network - Soroban transaction pre-flight simulation, smart RPC routing with automatic latency-ranked fallback, and human-readable XDR error decoding. Monorepo containing the TypeScript SDK (stellar-lens), web demo, and VS Code extension, with planned ports to Python, Go, and Rust/WASM.",
   "private": true,
+  "type": "module",
   "main": "index.js",
+  "repository": "https://github.com/ezedike-evan/stellar-lens",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint 'packages/*/src/**/*.ts'",
+    "format": "prettier --write 'packages/*/src/**/*.ts'"
   },
   "keywords": [],
   "author": "Ezedike-Evan <egwomevan323@gmail.com>",
   "license": "ISC",
   "packageManager": "pnpm@10.22.0",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.58.1",
+    "@typescript-eslint/parser": "^8.58.1",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.2",
     "typescript": "^6.0.2"
   }
 }
