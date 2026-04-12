@@ -7,6 +7,9 @@
   "main": "index.js",
   "repository": "https://github.com/ezedike-evan/stellar-lens",
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint 'packages/*/src/**/*.ts'",
     "format": "prettier --write 'packages/*/src/**/*.ts'"
   },
@@ -17,9 +20,11 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.58.1",
     "@typescript-eslint/parser": "^8.58.1",
+    "@vitest/coverage-v8": "^4.1.4",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
   }
 }

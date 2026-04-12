@@ -79,3 +79,4 @@ ehthumbs.db
 .eslintcache
 .stylelintcache
 *.tgz
+.claude
