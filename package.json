@@ -10,5 +10,8 @@
   "keywords": [],
   "author": "Ezedike-Evan <egwomevan323@gmail.com>",
   "license": "ISC",
-  "packageManager": "pnpm@10.22.0"
+  "packageManager": "pnpm@10.22.0",
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
 }
