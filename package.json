@@ -1,14 +1,14 @@
 {
   "name": "stellar-lens-monorepo",
   "version": "1.0.0",
-  "description": "",
+  "description": "Developer SDK for the Stellar network - Soroban transaction pre-flight simulation, smart RPC routing with automatic latency-ranked fallback, and human-readable XDR error decoding. Monorepo containing the TypeScript SDK (stellar-lens), web demo, and VS Code extension, with planned ports to Python, Go, and Rust/WASM.",
   "private": true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
   "license": "ISC",
   "packageManager": "pnpm@10.22.0"
 }
