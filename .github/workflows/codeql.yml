@@ -37,16 +37,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4.2.2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@65c74964a9ed8c44ed2f7d6f9f5491c4bd3c28d4 # v3.28.x
+        uses: github/codeql-action/init@v3.28.x
         with:
           languages: javascript-typescript
           build-mode: none
           queries: security-and-quality
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@65c74964a9ed8c44ed2f7d6f9f5491c4bd3c28d4 # v3.28.x
+        uses: github/codeql-action/analyze@v3.28.x
         with:
           category: '/language:javascript-typescript'

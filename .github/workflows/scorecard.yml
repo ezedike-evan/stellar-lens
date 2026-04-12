@@ -21,6 +21,10 @@ permissions:
   id-token: write
   security-events: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   scorecard:
     name: Scorecard Analysis
