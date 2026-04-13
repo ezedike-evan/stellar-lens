@@ -1,26 +1,24 @@
-interface RpcRequest {
+export interface RpcRequest {
   jsonrpc: '2.0';
   id: string | number;
   method: string;
   params?: unknown[];
 }
 
-interface RpcResponse<T> {
+export interface RpcResponse<T> {
   jsonrpc: '2.0';
   id: string | number;
   result?: T;
   error?: RpcResponseErrorPayload;
 }
 
-interface RpcResponseErrorPayload {
+export interface RpcResponseErrorPayload {
   code: number;
   message: string;
   data?: unknown;
 }
 
-interface RpcClientConfig {
+export interface RpcClientConfig {
   url: string;
   timeout?: number;
 }
-
-export { RpcRequest, RpcResponse, RpcResponseErrorPayload, RpcClientConfig };
