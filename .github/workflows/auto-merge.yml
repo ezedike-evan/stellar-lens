@@ -36,7 +36,7 @@ jobs:
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
         uses: hmarr/auto-approve-action@v4
         with:
-          github-token: ${{ secrets.GITHUB_PAT }}
+          github-token: ${{ secrets.LEN_PAT }}
 
       - name: Enable auto-merge for patch and minor updates
         if: >
@@ -44,6 +44,6 @@ jobs:
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
         uses: ezedike-evans/enable-pull-request-automerge@v3
         with:
-          token: ${{ secrets.GITHUB_PAT }}
+          token: ${{ secrets.LEN_PAT }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
