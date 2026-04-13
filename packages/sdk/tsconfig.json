@@ -2,8 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "composite": true
+    "lib": ["ES2022", "DOM", "esnext"]
   },
   "include": ["src", "tests"],
   "exclude": ["node_modules", "dist"]
