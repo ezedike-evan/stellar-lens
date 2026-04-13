@@ -21,6 +21,7 @@ export interface RpcResponseErrorPayload {
 export interface RpcClientConfig {
   url: string;
   timeout?: number;
+  headers?: Record<string, string>;
 }
 
 export type EndpointStatus = 'healthy' | 'degraded' | 'unreachable';

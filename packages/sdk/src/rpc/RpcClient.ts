@@ -27,6 +27,7 @@ export class RpcClient {
 
     this.config = {
       timeout: RpcClient.DEFAULT_TIMEOUT,
+      headers: {},
       ...config,
     };
   }
@@ -68,6 +69,7 @@ export class RpcClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            ...this.config.headers,
           },
           body: JSON.stringify(request),
           signal: controller.signal,

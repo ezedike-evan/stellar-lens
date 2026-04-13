@@ -11,9 +11,4 @@ export type {
   EndpointStatus,
 } from './rpc/types';
 
-export {
-  RpcNetworkError,
-  RpcResponseError,
-  RpcTimeoutError,
-  RpcParseError,
-} from './rpc/errors';
+export { RpcNetworkError, RpcResponseError, RpcTimeoutError, RpcParseError } from './rpc/errors';

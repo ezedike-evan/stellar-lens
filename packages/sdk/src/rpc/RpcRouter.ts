@@ -1,9 +1,5 @@
 import { RpcClient } from './RpcClient';
-import type {
-  RouterConfig,
-  RouterState,
-  EndpointHealth,
-} from './types';
+import type { RouterConfig, RouterState, EndpointHealth } from './types';
 import { RpcNetworkError, RpcTimeoutError } from './errors';
 
 /**
@@ -36,9 +32,7 @@ export class RpcRouter {
 
   constructor(config: RouterConfig) {
     if (!Array.isArray(config.endpoints) || config.endpoints.length === 0) {
-      throw new TypeError(
-        'RpcRouter: config.endpoints must be a non-empty array of URL strings.',
-      );
+      throw new TypeError('RpcRouter: config.endpoints must be a non-empty array of URL strings.');
     }
 
     for (const endpoint of config.endpoints) {
@@ -96,7 +90,8 @@ export class RpcRouter {
     };
 
     try {
-      await client.healthCheck();
+      const alive = await client.healthCheck();
+      if (!alive) throw new Error('health check returned false');
       const latencyMs = Date.now() - start;
 
       return {
@@ -127,13 +122,15 @@ export class RpcRouter {
     this.state.endpoints = results.map((result, i) =>
       result.status === 'fulfilled'
         ? result.value
-        : this.state.endpoints[i] ?? {
+        : (this.state.endpoints[i] ?? {
             url: this.config.endpoints[i] ?? '',
             status: 'unreachable' as const,
             latencyMs: null,
             lastChecked: new Date(),
-            consecutiveFailures: ((this.state.endpoints[i] as EndpointHealth | undefined)?.consecutiveFailures ?? 0) + 1,
-          },
+            consecutiveFailures:
+              ((this.state.endpoints[i] as EndpointHealth | undefined)?.consecutiveFailures ?? 0) +
+              1,
+          }),
     );
 
     this.state.endpoints.sort((a, b) => {
@@ -244,8 +241,9 @@ export class RpcRouter {
    * Stops the health-check timer and releases all resources.
    * Enables use in `await using` blocks (TC39 Explicit Resource Management).
    */
-  async [Symbol.asyncDispose](): Promise<void> {
+  [Symbol.asyncDispose](): Promise<void> {
     this.stop();
+    return Promise.resolve();
   }
 }
 
