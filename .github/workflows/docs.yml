@@ -7,15 +7,9 @@
 
 name: Docs
 
+# Disabled until Step 13 — restore push trigger once pnpm docs:build exists
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**/*.md'
-      - 'packages/sdk/README.md'
-      - 'README.md'
-      - '.github/workflows/docs.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -60,7 +54,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build documentation site
-        run: pnpm docs:build
+        run: pnpm docs:build # TODO: activate at Step 13 — docs site not yet scaffolded
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4.0.0
