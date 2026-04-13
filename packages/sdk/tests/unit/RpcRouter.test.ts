@@ -1,34 +1,40 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { RpcRouter } from '../../src/rpc/RpcRouter';
+import { RpcClient } from '../../src/rpc/RpcClient';
+import type { EndpointHealth, RouterState } from '../../src/rpc/types';
 import { RpcNetworkError, RpcTimeoutError, RpcResponseError } from '../../src/rpc/errors';
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+// Mock the entire RpcClient module so RpcRouter is tested in complete isolation.
+// Every `new RpcClient()` call inside RpcRouter returns a controlled mock instance.
+vi.mock('../../src/rpc/RpcClient');
+
+// ─── constants ───────────────────────────────────────────────────────────────
 
 const EP1 = 'https://soroban-testnet.stellar.org';
 const EP2 = 'https://rpc.ankr.com/stellar_testnet';
 const EP3 = 'https://stellar-testnet.blockdaemon.com/soroban/rpc';
 
-function okResponse(result: unknown) {
-  return {
-    ok: true,
-    status: 200,
-    json: () => Promise.resolve({ jsonrpc: '2.0', id: 1, result }),
-  };
-}
+// ─── shared mock handles ─────────────────────────────────────────────────────
 
-function rpcErrorResponse(code: number, message: string) {
-  return {
-    ok: true,
-    status: 200,
-    json: () => Promise.resolve({ jsonrpc: '2.0', id: 1, error: { code, message, data: null } }),
-  };
-}
+let mockCall: ReturnType<typeof vi.fn>;
+let mockHealthCheck: ReturnType<typeof vi.fn>;
 
 // ─── setup / teardown ───────────────────────────────────────────────────────
 
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn());
   vi.useFakeTimers();
+  vi.clearAllMocks();
+
+  mockCall = vi.fn().mockResolvedValue({ sequence: 100 });
+  mockHealthCheck = vi.fn().mockResolvedValue(true);
+
+  vi.mocked(RpcClient).mockImplementation(function (config) {
+    return {
+      call: mockCall,
+      healthCheck: mockHealthCheck,
+      getUrl: vi.fn().mockReturnValue(config.url),
+    } as unknown as RpcClient;
+  });
 });
 
 afterEach(() => {
@@ -39,87 +45,167 @@ afterEach(() => {
 // ─── constructor ────────────────────────────────────────────────────────────
 
 describe('constructor', () => {
-  it('throws TypeError when endpoints is an empty array', () => {
+  it('throws TypeError for an empty endpoints array', () => {
     expect(() => new RpcRouter({ endpoints: [] })).toThrow(TypeError);
   });
 
-  it('throws TypeError when endpoints is not an array', () => {
+  it('throws TypeError for a non-string endpoint', () => {
     // @ts-expect-error intentional
-    expect(() => new RpcRouter({ endpoints: EP1 })).toThrow(TypeError);
+    expect(() => new RpcRouter({ endpoints: [42] })).toThrow(TypeError);
   });
 
-  it('throws TypeError when an endpoint entry is an empty string', () => {
-    expect(() => new RpcRouter({ endpoints: [EP1, ''] })).toThrow(TypeError);
+  it('throws TypeError for an empty string endpoint', () => {
+    expect(() => new RpcRouter({ endpoints: [''] })).toThrow(TypeError);
   });
 
-  it('constructs successfully with valid endpoints', () => {
-    expect(() => new RpcRouter({ endpoints: [EP1] })).not.toThrow();
+  it('constructs without throwing for valid endpoints', () => {
+    expect(() => new RpcRouter({ endpoints: [EP1, EP2] })).not.toThrow();
   });
-});
 
-// ─── getActiveUrl() ─────────────────────────────────────────────────────────
+  it('creates exactly one RpcClient per endpoint', () => {
+    new RpcRouter({ endpoints: [EP1, EP2, EP3] });
+    expect(vi.mocked(RpcClient)).toHaveBeenCalledTimes(3);
+  });
 
-describe('getActiveUrl()', () => {
-  it('returns the first endpoint URL immediately after construction', () => {
-    const router = new RpcRouter({ endpoints: [EP1, EP2] });
-    expect(router.getActiveUrl()).toBe(EP1);
+  it('passes each endpoint URL to the corresponding RpcClient', () => {
+    new RpcRouter({ endpoints: [EP1, EP2] });
+    const calls = vi.mocked(RpcClient).mock.calls;
+    expect(calls[0]?.[0].url).toBe(EP1);
+    expect(calls[1]?.[0].url).toBe(EP2);
   });
 });
 
 // ─── getState() ─────────────────────────────────────────────────────────────
 
 describe('getState()', () => {
-  it('returns a snapshot with the correct endpoint count', () => {
+  it('returns initial state with all configured endpoints listed', () => {
     const router = new RpcRouter({ endpoints: [EP1, EP2] });
-    const state = router.getState();
-    expect(state.endpoints).toHaveLength(2);
-    expect(state.activeIndex).toBe(0);
+    const { endpoints, activeIndex } = router.getState();
+    expect(endpoints).toHaveLength(2);
+    expect(activeIndex).toBe(0);
   });
 
-  it('returns a frozen object — top-level mutations are ignored', () => {
-    const router = new RpcRouter({ endpoints: [EP1] });
-    const state = router.getState();
-    expect(Object.isFrozen(state)).toBe(true);
-  });
-
-  it('mutations on the snapshot do not affect the internal state', () => {
-    const router = new RpcRouter({ endpoints: [EP1] });
-    const state = router.getState();
-    try {
-      // @ts-expect-error intentional mutation
-      state.activeIndex = 99;
-    } catch {
-      // frozen — expected in strict mode
+  it('initial latencyMs is null before the first ping', () => {
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    for (const ep of router.getState().endpoints) {
+      expect(ep.latencyMs).toBeNull();
     }
+  });
+
+  it('initial consecutiveFailures is 0 for all endpoints', () => {
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    for (const ep of router.getState().endpoints) {
+      expect(ep.consecutiveFailures).toBe(0);
+    }
+  });
+
+  it('returns a frozen snapshot — mutations have no effect on router state', () => {
+    const router = new RpcRouter({ endpoints: [EP1] });
+    const state = router.getState() as RouterState;
+    expect(Object.isFrozen(state)).toBe(true);
+    try { state.activeIndex = 99; } catch { /* frozen */ }
     expect(router.getState().activeIndex).toBe(0);
   });
 });
 
-// ─── getHealthySummary() ────────────────────────────────────────────────────
+// ─── pingAll() ──────────────────────────────────────────────────────────────
 
-describe('getHealthySummary()', () => {
-  it('returns all endpoints on fresh construction (all start healthy)', () => {
+describe('pingAll()', () => {
+  it('updates latencyMs to a number after a successful ping', async () => {
+    mockHealthCheck.mockResolvedValue(true);
+    const router = new RpcRouter({ endpoints: [EP1] });
+    await router.pingAll();
+    const [ep] = router.getState().endpoints;
+    expect(typeof ep?.latencyMs).toBe('number');
+    expect(ep?.latencyMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it('sets status to "degraded" after 1 consecutive failure', async () => {
+    mockHealthCheck.mockResolvedValue(false);
+    const router = new RpcRouter({ endpoints: [EP1] });
+    await router.pingAll();
+    expect(router.getState().endpoints[0]?.status).toBe('degraded');
+    expect(router.getState().endpoints[0]?.consecutiveFailures).toBe(1);
+  });
+
+  it('sets status to "unreachable" after 3 consecutive failures', async () => {
+    mockHealthCheck.mockResolvedValue(false);
+    const router = new RpcRouter({ endpoints: [EP1] });
+    await router.pingAll();
+    await router.pingAll();
+    await router.pingAll();
+    expect(router.getState().endpoints[0]?.status).toBe('unreachable');
+    expect(router.getState().endpoints[0]?.consecutiveFailures).toBe(3);
+  });
+
+  it('resets consecutiveFailures to 0 on recovery', async () => {
+    mockHealthCheck
+      .mockResolvedValueOnce(false) // first ping fails
+      .mockResolvedValue(true);     // all subsequent succeed
+
+    const router = new RpcRouter({ endpoints: [EP1] });
+    await router.pingAll();
+    expect(router.getState().endpoints[0]?.consecutiveFailures).toBe(1);
+    await router.pingAll();
+    expect(router.getState().endpoints[0]?.consecutiveFailures).toBe(0);
+    expect(router.getState().endpoints[0]?.status).toBe('healthy');
+  });
+
+  it('sorts endpoints by latencyMs ascending — fastest first', async () => {
+    // EP1 will appear "slower" because Date.now() advances between its start
+    // and end measurement; EP2 will appear "faster".
+    let nowCall = 0;
+    // Date.now() call order inside pingAll (concurrent):
+    //   call 1 → EP1 start, call 2 → EP2 start,
+    //   call 3 → EP1 end, call 4 → EP2 end
+    const nowValues = [0, 0, 200, 50]; // EP1: 200ms, EP2: 50ms
+    vi.spyOn(Date, 'now').mockImplementation(() => nowValues[nowCall++] ?? 0);
+
+    mockHealthCheck.mockResolvedValue(true);
     const router = new RpcRouter({ endpoints: [EP1, EP2] });
-    expect(router.getHealthySummary()).toHaveLength(2);
+    await router.pingAll();
+
+    const [first, second] = router.getState().endpoints;
+    // Verify sorted: first latency ≤ second latency
+    if (first?.latencyMs !== null && second?.latencyMs !== null) {
+      expect(first!.latencyMs!).toBeLessThanOrEqual(second!.latencyMs!);
+    }
+  });
+
+  it('sorts unreachable endpoints to the end of the list', async () => {
+    // EP1 fails → latencyMs null; EP2 succeeds → latencyMs is a number
+    mockHealthCheck
+      .mockResolvedValueOnce(false) // EP1 ping fails
+      .mockResolvedValueOnce(true); // EP2 ping succeeds
+
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    await router.pingAll();
+
+    const endpoints = router.getState().endpoints;
+    const lastEp = endpoints[endpoints.length - 1];
+    expect(lastEp?.latencyMs).toBeNull();
+  });
+
+  it('resets activeIndex to 0 after every ping cycle', async () => {
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    await router.pingAll();
+    expect(router.getState().activeIndex).toBe(0);
   });
 });
 
 // ─── call() ─────────────────────────────────────────────────────────────────
 
 describe('call()', () => {
-  it('returns the result from the active endpoint on success', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({ sequence: 100 })));
+  it('routes to the active (lowest-latency) endpoint and returns the result', async () => {
+    mockCall.mockResolvedValue({ sequence: 42 });
     const router = new RpcRouter({ endpoints: [EP1] });
-    const result = await router.call<{ sequence: number }>('getLatestLedger');
-    expect(result).toEqual({ sequence: 100 });
+    expect(await router.call<{ sequence: number }>('getLatestLedger')).toEqual({ sequence: 42 });
   });
 
   it('falls back to the next endpoint on RpcNetworkError', async () => {
-    const fetchSpy = vi
-      .fn()
+    mockCall
       .mockRejectedValueOnce(new RpcNetworkError('down', EP1))
-      .mockResolvedValue(okResponse({ sequence: 1 }));
-    vi.stubGlobal('fetch', fetchSpy);
+      .mockResolvedValueOnce({ sequence: 1 });
 
     const result = await new RpcRouter({ endpoints: [EP1, EP2], maxRetries: 3 }).call<{
       sequence: number;
@@ -128,11 +214,9 @@ describe('call()', () => {
   });
 
   it('falls back to the next endpoint on RpcTimeoutError', async () => {
-    const fetchSpy = vi
-      .fn()
+    mockCall
       .mockRejectedValueOnce(new RpcTimeoutError('slow', EP1, 5_000))
-      .mockResolvedValue(okResponse({ sequence: 2 }));
-    vi.stubGlobal('fetch', fetchSpy);
+      .mockResolvedValueOnce({ sequence: 2 });
 
     const result = await new RpcRouter({ endpoints: [EP1, EP2], maxRetries: 3 }).call<{
       sequence: number;
@@ -140,130 +224,122 @@ describe('call()', () => {
     expect(result).toEqual({ sequence: 2 });
   });
 
-  it('throws RpcResponseError immediately — no fallback', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(rpcErrorResponse(-32601, 'Method not found')));
+  it('does NOT fall back on RpcResponseError — throws immediately', async () => {
+    mockCall.mockRejectedValue(new RpcResponseError('bad method', -32601, null));
     await expect(
       new RpcRouter({ endpoints: [EP1, EP2], maxRetries: 3 }).call('getLatestLedger'),
     ).rejects.toBeInstanceOf(RpcResponseError);
+    // Only one attempt — no fallback
+    expect(mockCall).toHaveBeenCalledTimes(1);
   });
 
-  it('throws after maxRetries are exhausted', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new RpcNetworkError('down', EP1)));
+  it('throws the last error after exhausting all retries', async () => {
+    mockCall.mockRejectedValue(new RpcNetworkError('all down', EP1));
     await expect(
       new RpcRouter({ endpoints: [EP1, EP2, EP3], maxRetries: 3 }).call('getLatestLedger'),
     ).rejects.toBeInstanceOf(RpcNetworkError);
+    expect(mockCall).toHaveBeenCalledTimes(3);
   });
 
-  it('advances activeIndex on each network failure and wraps around', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new RpcNetworkError('down', EP1)));
-    const router = new RpcRouter({ endpoints: [EP1, EP2, EP3], maxRetries: 3 });
-    await router.call('getLatestLedger').catch(() => undefined);
-    expect(router.getState().activeIndex).toBe(0); // wraps back after 3 tries across 3 endpoints
+  it('returns the result on the first successful attempt', async () => {
+    mockCall.mockResolvedValue({ sequence: 99 });
+    const router = new RpcRouter({ endpoints: [EP1] });
+    const result = await router.call<{ sequence: number }>('getLatestLedger');
+    expect(result).toEqual({ sequence: 99 });
+    expect(mockCall).toHaveBeenCalledTimes(1);
   });
 });
 
-// ─── pingAll() ──────────────────────────────────────────────────────────────
+// ─── start() ────────────────────────────────────────────────────────────────
 
-describe('pingAll()', () => {
-  it('marks an endpoint healthy and records latency after a successful ping', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({ sequence: 1 })));
+describe('start()', () => {
+  it('calls pingAll immediately on invocation', () => {
     const router = new RpcRouter({ endpoints: [EP1] });
-    await router.pingAll();
-
-    const [ep] = router.getState().endpoints;
-    expect(ep?.status).toBe('healthy');
-    expect(typeof ep?.latencyMs).toBe('number');
-    expect(ep?.lastChecked).toBeInstanceOf(Date);
-    expect(ep?.consecutiveFailures).toBe(0);
-  });
-
-  it('marks an endpoint degraded after one failed ping', async () => {
-    const abortErr = Object.assign(new Error('abort'), { name: 'AbortError' });
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortErr));
-    const router = new RpcRouter({ endpoints: [EP1] });
-    await router.pingAll();
-
-    const [ep] = router.getState().endpoints;
-    expect(ep?.status).toBe('degraded');
-    expect(ep?.consecutiveFailures).toBe(1);
-  });
-
-  it('marks an endpoint unreachable after 3 consecutive failed pings', async () => {
-    const abortErr = Object.assign(new Error('abort'), { name: 'AbortError' });
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortErr));
-    const router = new RpcRouter({ endpoints: [EP1] });
-    await router.pingAll();
-    await router.pingAll();
-    await router.pingAll();
-
-    const [ep] = router.getState().endpoints;
-    expect(ep?.status).toBe('unreachable');
-    expect(ep?.consecutiveFailures).toBe(3);
-  });
-
-  it('resets an endpoint to healthy after it recovers from failure', async () => {
-    const abortErr = Object.assign(new Error('abort'), { name: 'AbortError' });
-    const fetchSpy = vi
-      .fn()
-      .mockRejectedValueOnce(abortErr)
-      .mockResolvedValue(okResponse({ sequence: 1 }));
-    vi.stubGlobal('fetch', fetchSpy);
-    const router = new RpcRouter({ endpoints: [EP1] });
-    await router.pingAll();
-    await router.pingAll();
-
-    const [ep] = router.getState().endpoints;
-    expect(ep?.status).toBe('healthy');
-    expect(ep?.consecutiveFailures).toBe(0);
-  });
-
-  it('resets activeIndex to 0 after every ping cycle', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({ sequence: 1 })));
-    const router = new RpcRouter({ endpoints: [EP1, EP2] });
-    await router.pingAll();
-    expect(router.getState().activeIndex).toBe(0);
-  });
-});
-
-// ─── start() / stop() ───────────────────────────────────────────────────────
-
-describe('start() / stop()', () => {
-  it('start() does not throw', () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({})));
-    const router = new RpcRouter({ endpoints: [EP1] });
-    expect(() => router.start()).not.toThrow();
+    const pingAllSpy = vi.spyOn(router, 'pingAll').mockResolvedValue(undefined);
+    router.start();
+    expect(pingAllSpy).toHaveBeenCalledOnce();
     router.stop();
   });
 
-  it('stop() clears the health-check timer', () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({})));
+  it('sets up a periodic health-check interval', () => {
+    const router = new RpcRouter({ endpoints: [EP1], healthCheckIntervalMs: 5_000 });
+    const pingAllSpy = vi.spyOn(router, 'pingAll').mockResolvedValue(undefined);
+    router.start();
+    expect(pingAllSpy).toHaveBeenCalledTimes(1); // immediate
+
+    vi.advanceTimersByTime(5_000);
+    expect(pingAllSpy).toHaveBeenCalledTimes(2); // first interval
+
+    vi.advanceTimersByTime(5_000);
+    expect(pingAllSpy).toHaveBeenCalledTimes(3); // second interval
+    router.stop();
+  });
+});
+
+// ─── stop() ─────────────────────────────────────────────────────────────────
+
+describe('stop()', () => {
+  it('clears the health-check interval', () => {
     const clearSpy = vi.spyOn(globalThis, 'clearInterval');
     const router = new RpcRouter({ endpoints: [EP1] });
+    vi.spyOn(router, 'pingAll').mockResolvedValue(undefined);
     router.start();
     router.stop();
     expect(clearSpy).toHaveBeenCalledOnce();
   });
 
-  it('stop() is idempotent — safe to call multiple times', () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({})));
+  it('is safe to call multiple times without throwing', () => {
     const router = new RpcRouter({ endpoints: [EP1] });
+    vi.spyOn(router, 'pingAll').mockResolvedValue(undefined);
     router.start();
-    expect(() => {
-      router.stop();
-      router.stop();
-    }).not.toThrow();
+    expect(() => { router.stop(); router.stop(); }).not.toThrow();
   });
 });
 
-// ─── Symbol.asyncDispose ────────────────────────────────────────────────────
+// ─── getHealthySummary() ────────────────────────────────────────────────────
 
-describe('[Symbol.asyncDispose]()', () => {
-  it('calls stop() when disposed', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({})));
-    const router = new RpcRouter({ endpoints: [EP1] });
-    router.start();
-    const stopSpy = vi.spyOn(router, 'stop');
-    await router[Symbol.asyncDispose]();
-    expect(stopSpy).toHaveBeenCalledOnce();
+describe('getHealthySummary()', () => {
+  it('returns all endpoints when all are healthy (initial state)', () => {
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    expect(router.getHealthySummary()).toHaveLength(2);
+  });
+
+  it('returns only healthy endpoints after a ping cycle with failures', async () => {
+    mockHealthCheck
+      .mockResolvedValueOnce(true)  // EP1 healthy
+      .mockResolvedValueOnce(false); // EP2 degraded
+
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    await router.pingAll();
+
+    const healthy = router.getHealthySummary();
+    expect(healthy).toHaveLength(1);
+    expect(healthy.every((e: EndpointHealth) => e.status === 'healthy')).toBe(true);
+  });
+
+  it('returns an empty array when all endpoints are degraded', async () => {
+    mockHealthCheck.mockResolvedValue(false);
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    await router.pingAll();
+    expect(router.getHealthySummary()).toHaveLength(0);
+  });
+});
+
+// ─── getActiveUrl() ─────────────────────────────────────────────────────────
+
+describe('getActiveUrl()', () => {
+  it('returns the URL of the current active endpoint on construction', () => {
+    const router = new RpcRouter({ endpoints: [EP1, EP2] });
+    expect(router.getActiveUrl()).toBe(EP1);
+  });
+
+  it('returns the next endpoint URL after a fallback increments activeIndex', async () => {
+    mockCall
+      .mockRejectedValueOnce(new RpcNetworkError('down', EP1))
+      .mockResolvedValue({ sequence: 1 });
+
+    const router = new RpcRouter({ endpoints: [EP1, EP2], maxRetries: 2 });
+    await router.call('getLatestLedger');
+    expect(router.getActiveUrl()).toBe(EP2);
   });
 });

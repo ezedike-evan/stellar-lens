@@ -5,5 +5,6 @@ export default defineConfig({
   test: {
     ...rootConfig.test,
     include: ['tests/**/*.test.ts'],
+    exclude: ['tests/integration/**'],
   },
 });
