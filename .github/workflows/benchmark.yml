@@ -41,7 +41,6 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4.0.0
         with:
-          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6.3.0
@@ -128,9 +127,23 @@ jobs:
           if (regressions > 0) process.exit(1);
           EOF
 
+      - name: Read benchmark summary
+        id: bench-summary
+        if: always()
+        run: |
+          if [ -f /tmp/bench-summary.md ]; then
+            {
+              echo "content<<EOF"
+              cat /tmp/bench-summary.md
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "content=Benchmark results unavailable — benchmarks may not be configured yet or an earlier step failed." >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Post benchmark comment
         uses: marocchino/sticky-pull-request-comment@v2.9.0
         if: always()
         with:
           header: benchmark
-          path: /tmp/bench-summary.md
+          message: ${{ steps.bench-summary.outputs.content }}
