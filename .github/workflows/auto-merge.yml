@@ -42,7 +42,7 @@ jobs:
         if: >
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        uses: ezedike-evans/enable-pull-request-automerge@v3
+        uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.LEN_PAT }}
           pull-request-number: ${{ github.event.pull_request.number }}
