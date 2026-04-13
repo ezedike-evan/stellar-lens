@@ -22,3 +22,26 @@ export interface RpcClientConfig {
   url: string;
   timeout?: number;
 }
+
+export type EndpointStatus = 'healthy' | 'degraded' | 'unreachable';
+
+export interface EndpointHealth {
+  url: string;
+  status: EndpointStatus;
+  latencyMs: number | null;
+  lastChecked: Date | null;
+  consecutiveFailures: number;
+}
+
+export interface RouterConfig {
+  endpoints: readonly string[];
+  healthCheckIntervalMs?: number;
+  maxRetries?: number;
+  fallbackOnFailure?: boolean;
+  timeout?: number;
+}
+
+export interface RouterState {
+  endpoints: EndpointHealth[];
+  activeIndex: number;
+}
