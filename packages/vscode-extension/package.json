@@ -1,0 +1,7 @@
+{
+  "name": "@stellar-lens/vscode-extension-placeholder",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Placeholder for the StellarLens VS Code extension. Real implementation lands in Phase 5 of the roadmap.",
+  "license": "MIT"
+}

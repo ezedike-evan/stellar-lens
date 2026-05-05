@@ -1,0 +1,7 @@
+{
+  "name": "@stellar-lens/demo-placeholder",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Placeholder for the StellarLens web demo. Real implementation lands in Stage 3 of the roadmap.",
+  "license": "MIT"
+}
