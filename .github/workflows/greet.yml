@@ -27,8 +27,8 @@ jobs:
       - name: Greet first-time contributor
         uses: actions/first-interaction@v3.1.0
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: |
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
             👋 Welcome to StellarLens, and thank you for opening your first issue!
 
             We appreciate you taking the time to report this. Here's what happens next:
@@ -42,7 +42,7 @@ jobs:
             - 🤝 [Contributing Guide](https://github.com/ezedike-evan/stellar-lens/blob/main/CONTRIBUTING.md) *(coming soon)*
 
             Don't hesitate to ask if you need anything. We're glad you're here!
-          pr-message: |
+          pr_message: |
             👋 Welcome to StellarLens, and thank you for your first pull request!
 
             We're excited to review your contribution. Here's what to expect:
