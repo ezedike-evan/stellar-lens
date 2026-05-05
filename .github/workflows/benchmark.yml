@@ -64,7 +64,7 @@ jobs:
         run: pnpm --filter stellar-lens vitest bench --reporter=json > /tmp/bench-pr.json
 
       - name: Upload PR benchmark results
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: bench-pr
           path: /tmp/bench-pr.json
@@ -76,7 +76,7 @@ jobs:
         run: pnpm --filter stellar-lens vitest bench --reporter=json > /tmp/bench-main.json
 
       - name: Upload main benchmark results
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: bench-main
           path: /tmp/bench-main.json
