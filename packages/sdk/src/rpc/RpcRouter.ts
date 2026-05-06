@@ -114,6 +114,15 @@ export class RpcRouter {
     }
   }
 
+  /**
+   * Pings all configured endpoints concurrently to measure latency and health.
+   * After all pings complete (successfully or not), it updates the health status
+   * and latency for each endpoint, then re-ranks the endpoints from fastest to slowest.
+   * Unreachable endpoints are moved to the back of the queue. Finally, it resets
+   * the active endpoint index to 0.
+   *
+   * @returns A Promise that resolves when all ping operations and re-ranking are complete.
+   */
   async pingAll(): Promise<void> {
     const results = await Promise.allSettled(
       this.state.endpoints.map((e) => this.pingEndpoint(e.url)),
