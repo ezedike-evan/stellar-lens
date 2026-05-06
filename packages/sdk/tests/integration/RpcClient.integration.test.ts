@@ -65,9 +65,7 @@ describe('RpcClient — live testnet', () => {
   it(
     'calling an invalid method throws RpcResponseError',
     async () => {
-      await expect(client.call('nonExistentMethod_xyz')).rejects.toBeInstanceOf(
-        RpcResponseError,
-      );
+      await expect(client.call('nonExistentMethod_xyz')).rejects.toBeInstanceOf(RpcResponseError);
     },
     TIMEOUT_MS,
   );
