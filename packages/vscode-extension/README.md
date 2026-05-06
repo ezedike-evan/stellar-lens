@@ -13,4 +13,4 @@ all powered by the StellarLens SDK:
 - **Call template generation** — right-click any contract function
   to insert a ready-to-use TypeScript SDK snippet
 
-See the project roadmap for full details.
+See the project roadmap for full details. Period.
