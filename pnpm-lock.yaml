@@ -39,11 +39,15 @@ importers:
         specifier: ^4.1.4
         version: 4.1.4(@vitest/coverage-v8@4.1.4)(vite@8.0.8(esbuild@0.27.7))
 
+  packages/demo: {}
+
   packages/sdk:
     devDependencies:
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.9)(typescript@6.0.2)
+
+  packages/vscode-extension: {}
 
 packages:
 

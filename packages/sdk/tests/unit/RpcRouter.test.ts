@@ -103,7 +103,11 @@ describe('getState()', () => {
     const router = new RpcRouter({ endpoints: [EP1] });
     const state = router.getState() as RouterState;
     expect(Object.isFrozen(state)).toBe(true);
-    try { state.activeIndex = 99; } catch { /* frozen */ }
+    try {
+      state.activeIndex = 99;
+    } catch {
+      /* frozen */
+    }
     expect(router.getState().activeIndex).toBe(0);
   });
 });
@@ -141,7 +145,7 @@ describe('pingAll()', () => {
   it('resets consecutiveFailures to 0 on recovery', async () => {
     mockHealthCheck
       .mockResolvedValueOnce(false) // first ping fails
-      .mockResolvedValue(true);     // all subsequent succeed
+      .mockResolvedValue(true); // all subsequent succeed
 
     const router = new RpcRouter({ endpoints: [EP1] });
     await router.pingAll();
@@ -292,7 +296,10 @@ describe('stop()', () => {
     const router = new RpcRouter({ endpoints: [EP1] });
     vi.spyOn(router, 'pingAll').mockResolvedValue(undefined);
     router.start();
-    expect(() => { router.stop(); router.stop(); }).not.toThrow();
+    expect(() => {
+      router.stop();
+      router.stop();
+    }).not.toThrow();
   });
 });
 
@@ -306,7 +313,7 @@ describe('getHealthySummary()', () => {
 
   it('returns only healthy endpoints after a ping cycle with failures', async () => {
     mockHealthCheck
-      .mockResolvedValueOnce(true)  // EP1 healthy
+      .mockResolvedValueOnce(true) // EP1 healthy
       .mockResolvedValueOnce(false); // EP2 degraded
 
     const router = new RpcRouter({ endpoints: [EP1, EP2] });

@@ -182,9 +182,9 @@ describe('call()', () => {
 
   it('throws RpcResponseError when the response body has an error field', async () => {
     stubFetch(vi.fn().mockResolvedValue(errorResponse(-32600, 'Invalid Request')));
-    await expect(
-      new RpcClient({ url: BASE_URL }).call('getLatestLedger'),
-    ).rejects.toBeInstanceOf(RpcResponseError);
+    await expect(new RpcClient({ url: BASE_URL }).call('getLatestLedger')).rejects.toBeInstanceOf(
+      RpcResponseError,
+    );
   });
 
   it('RpcResponseError carries the correct code', async () => {
@@ -198,9 +198,11 @@ describe('call()', () => {
 
   it('RpcResponseError carries the correct data field', async () => {
     stubFetch(
-      vi.fn().mockResolvedValue(
-        errorResponse(-32602, 'Invalid params', { received: 'string', expected: 'object' }),
-      ),
+      vi
+        .fn()
+        .mockResolvedValue(
+          errorResponse(-32602, 'Invalid params', { received: 'string', expected: 'object' }),
+        ),
     );
     const err = await new RpcClient({ url: BASE_URL })
       .call('getLatestLedger')
@@ -213,16 +215,16 @@ describe('call()', () => {
 
   it('throws RpcNetworkError when fetch rejects', async () => {
     stubFetch(vi.fn().mockRejectedValue(new Error('connection refused')));
-    await expect(
-      new RpcClient({ url: BASE_URL }).call('getLatestLedger'),
-    ).rejects.toBeInstanceOf(RpcNetworkError);
+    await expect(new RpcClient({ url: BASE_URL }).call('getLatestLedger')).rejects.toBeInstanceOf(
+      RpcNetworkError,
+    );
   });
 
   it('throws RpcNetworkError when the response has a 500 status', async () => {
     stubFetch(vi.fn().mockResolvedValue(makeResponse({}, 500)));
-    await expect(
-      new RpcClient({ url: BASE_URL }).call('getLatestLedger'),
-    ).rejects.toBeInstanceOf(RpcNetworkError);
+    await expect(new RpcClient({ url: BASE_URL }).call('getLatestLedger')).rejects.toBeInstanceOf(
+      RpcNetworkError,
+    );
   });
 
   it('RpcNetworkError for a 500 includes the status in the message', async () => {
@@ -241,9 +243,9 @@ describe('call()', () => {
         json: () => Promise.reject(new SyntaxError('Unexpected token')),
       }),
     );
-    await expect(
-      new RpcClient({ url: BASE_URL }).call('getLatestLedger'),
-    ).rejects.toBeInstanceOf(RpcParseError);
+    await expect(new RpcClient({ url: BASE_URL }).call('getLatestLedger')).rejects.toBeInstanceOf(
+      RpcParseError,
+    );
   });
 
   it('throws RpcTimeoutError when the request is aborted', async () => {
@@ -251,9 +253,9 @@ describe('call()', () => {
       name: 'AbortError',
     });
     stubFetch(vi.fn().mockRejectedValue(abortErr));
-    await expect(
-      new RpcClient({ url: BASE_URL }).call('getLatestLedger'),
-    ).rejects.toBeInstanceOf(RpcTimeoutError);
+    await expect(new RpcClient({ url: BASE_URL }).call('getLatestLedger')).rejects.toBeInstanceOf(
+      RpcTimeoutError,
+    );
   });
 
   it('RpcTimeoutError carries the configured timeout value', async () => {
