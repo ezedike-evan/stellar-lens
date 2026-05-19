@@ -358,7 +358,7 @@ describe('Edge cases and internal methods', () => {
     const router = new RpcRouter({ endpoints: [EP1] });
     // pingEndpoint is private, so we access it via 'any'
     await expect((router as any).pingEndpoint('http://unregistered')).rejects.toThrow(
-      'RpcRouter: no client registered for URL: http://unregistered'
+      'RpcRouter: no client registered for URL: http://unregistered',
     );
   });
 
