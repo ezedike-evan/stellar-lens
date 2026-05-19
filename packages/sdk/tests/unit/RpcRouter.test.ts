@@ -350,3 +350,36 @@ describe('getActiveUrl()', () => {
     expect(router.getActiveUrl()).toBe(EP2);
   });
 });
+
+// ─── Uncovered Line Tests ───────────────────────────────────────────────────
+
+describe('Edge cases and internal methods', () => {
+  it('pingEndpoint throws if no client is registered (line 81)', async () => {
+    const router = new RpcRouter({ endpoints: [EP1] });
+    // pingEndpoint is private, so we access it via 'any'
+    await expect((router as any).pingEndpoint('http://unregistered')).rejects.toThrow(
+      'RpcRouter: no client registered for URL: http://unregistered',
+    );
+  });
+
+  it('call() breaks if endpoint is undefined (line 188)', async () => {
+    const router = new RpcRouter({ endpoints: [EP1] });
+    // Force endpoint to be undefined by emptying the state endpoints array
+    (router as any).state.endpoints = [];
+    await expect(router.call('getLatestLedger')).rejects.toBeUndefined();
+  });
+
+  it('call() breaks if client is undefined (line 194)', async () => {
+    const router = new RpcRouter({ endpoints: [EP1] });
+    // Mutate state to include a URL that has no registered client
+    (router as any).state.endpoints[0].url = 'http://unregistered';
+    await expect(router.call('getLatestLedger')).rejects.toBeUndefined();
+  });
+
+  it('[Symbol.asyncDispose] stops the router (lines 245-246)', async () => {
+    const router = new RpcRouter({ endpoints: [EP1] });
+    const stopSpy = vi.spyOn(router, 'stop');
+    await router[Symbol.asyncDispose]();
+    expect(stopSpy).toHaveBeenCalledOnce();
+  });
+});
