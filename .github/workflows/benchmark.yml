@@ -141,7 +141,7 @@ jobs:
           fi
 
       - name: Post benchmark comment
-        uses: marocchino/sticky-pull-request-comment@v2.9.0
+        uses: marocchino/sticky-pull-request-comment@v3.0.4
         if: always()
         with:
           header: benchmark

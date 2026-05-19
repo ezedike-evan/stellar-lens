@@ -59,7 +59,7 @@ jobs:
             The subject "{subject}" must not start with an uppercase letter.
 
       - name: Post failure comment
-        uses: marocchino/sticky-pull-request-comment@v2.9.0
+        uses: marocchino/sticky-pull-request-comment@v3.0.4
         if: always() && (steps.lint.outputs.error_message != null)
         with:
           header: commitlint
@@ -82,7 +82,7 @@ jobs:
             - `docs(sdk): add FeeEstimator usage example`
 
       - name: Delete failure comment on resolution
-        uses: marocchino/sticky-pull-request-comment@v2.9.0
+        uses: marocchino/sticky-pull-request-comment@v3.0.4
         if: ${{ steps.lint.outputs.error_message == null }}
         with:
           header: commitlint
