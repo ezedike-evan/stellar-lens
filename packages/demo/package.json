@@ -1,7 +1,30 @@
 {
-  "name": "@stellar-lens/demo-placeholder",
-  "version": "0.0.0",
+  "name": "@stellar-lens/docs",
+  "version": "0.0.1",
   "private": true,
-  "description": "Placeholder for the StellarLens web demo. Real implementation lands in Stage 3 of the roadmap.",
-  "license": "MIT"
+  "description": "StellarLens documentation site",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "framer-motion": "^12.36.0",
+    "geist": "^1.7.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^18.0.2",
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^6.0.3"
+  }
 }
