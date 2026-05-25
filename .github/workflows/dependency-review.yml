@@ -37,7 +37,7 @@ jobs:
       # this step informational rather than blocking the PR until the feature
       # is enabled in repo settings.
       - name: Run dependency review
-        uses: actions/dependency-review-action@v4.5.0
+        uses: actions/dependency-review-action@v5.0.0
         continue-on-error: true
         with:
           fail-on-severity: high
