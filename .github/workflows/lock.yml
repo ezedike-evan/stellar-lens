@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Lock closed issues and PRs
-        uses: dessant/lock-threads@v6.0.0
+        uses: dessant/lock-threads@v6.0.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           issue-inactive-days: 60
