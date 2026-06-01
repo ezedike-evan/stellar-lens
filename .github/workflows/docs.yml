@@ -57,7 +57,7 @@ jobs:
         run: pnpm docs:build # TODO: activate at Step 13 — docs site not yet scaffolded
 
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v4.0.0
+        uses: actions/configure-pages@v6.0.0
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v5.0.0
