@@ -19,6 +19,7 @@ TypeScript SDK for the Stellar network — smart RPC routing with latency-ranked
 ## Features
 
 - **Smart RPC routing** — pool multiple Soroban endpoints, rank by latency, fall back automatically on failure
+- **Soroban pre-flight simulation** — simulate a transaction before submitting: resource fee, CPU/memory cost, footprint, auth, and return value
 - **Human-readable XDR error decoding** — turn opaque `errorResultXdr` / `resultXdr` / `ScError` blobs into plain-English explanations, including contract error codes
 - **Typed JSON-RPC 2.0 client** — structured error classes, configurable timeouts, custom headers
 - **TypeScript-native** — full `.d.ts` declarations, no `@types/*` packages required
@@ -71,6 +72,21 @@ const client = new RpcClient({ url: 'https://soroban-testnet.stellar.org' });
 const ledger = await client.call<{ sequence: number }>('getLatestLedger');
 ```
 
+### Simulate a transaction before submitting
+
+```ts
+import { RpcClient, TransactionSimulator } from 'stellar-lens';
+
+const client = new RpcClient({ url: 'https://soroban-testnet.stellar.org' });
+const simulator = new TransactionSimulator(client);
+
+const result = await simulator.simulate(transactionEnvelopeXdr);
+if (!result.success) throw new Error(result.error ?? 'Simulation failed');
+
+console.log('resource fee:', result.minResourceFee); // stroops, as bigint
+console.log('cpu instructions:', result.cost?.cpuInstructions);
+```
+
 ### Decode a failed Soroban transaction
 
 ```ts
@@ -106,6 +122,7 @@ try {
 
 - [RpcClient](./docs/rpc-client.md) — single-endpoint JSON-RPC client
 - [RpcRouter](./docs/rpc-router.md) — multi-endpoint router with health checking and fallback
+- [Transaction Simulation](./docs/transaction-simulation.md) — pre-flight Soroban simulation: fees, cost, footprint, and auth
 - [Error Decoding](./docs/error-decoding.md) — human-readable XDR transaction & contract error decoding
 
 ---

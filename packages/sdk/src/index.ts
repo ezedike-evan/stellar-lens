@@ -27,3 +27,15 @@ export type {
   XdrErrorCategory,
   TransactionErrorInput,
 } from './decode';
+
+export { TransactionSimulator, SimulationError } from './simulation';
+
+export type {
+  SimulateOptions,
+  RpcCaller,
+  SimulateTransactionParams,
+  RawSimulateResponse,
+  SimulationCost,
+  RestorePreamble,
+  SimulationResult,
+} from './simulation';
