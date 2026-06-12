@@ -8,7 +8,11 @@ import {
   OperationType,
   lookup,
 } from './codes';
-import { XdrDecodeError, type DecodedOperationResult, type DecodedTransactionResult } from './types';
+import {
+  XdrDecodeError,
+  type DecodedOperationResult,
+  type DecodedTransactionResult,
+} from './types';
 
 /** `TransactionResultCode` values whose body is a `results<>` array. */
 const TX_SUCCESS = 0;
@@ -41,7 +45,9 @@ export function decodeTransactionResult(xdrBase64: string): DecodedTransactionRe
   try {
     bytes = base64ToBytes(xdrBase64);
   } catch (err) {
-    throw new XdrDecodeError(`decodeTransactionResult: invalid base64 input (${(err as Error).message})`);
+    throw new XdrDecodeError(
+      `decodeTransactionResult: invalid base64 input (${(err as Error).message})`,
+    );
   }
 
   const reader = new XdrReader(bytes);

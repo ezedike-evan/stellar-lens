@@ -63,16 +63,16 @@ const fee = await simulator.estimateFee(transactionEnvelopeXdr);
 ```ts
 interface SimulationResult {
   success: boolean;
-  error: string | null;          // human-readable when success === false
+  error: string | null; // human-readable when success === false
   latestLedger: number;
-  minResourceFee: bigint | null;  // stroops; add to the base fee
+  minResourceFee: bigint | null; // stroops; add to the base fee
   cost: { cpuInstructions: bigint; memoryBytes: bigint } | null;
-  returnValueXdr: string | null;  // base64 ScVal returned by the invocation
+  returnValueXdr: string | null; // base64 ScVal returned by the invocation
   transactionDataXdr: string | null; // base64 SorobanTransactionData (footprint)
-  auth: string[];                 // base64 SorobanAuthorizationEntry entries
-  events: string[];               // base64 DiagnosticEvent entries
+  auth: string[]; // base64 SorobanAuthorizationEntry entries
+  events: string[]; // base64 DiagnosticEvent entries
   restorePreamble: { minResourceFee: bigint; transactionDataXdr: string } | null;
-  needsRestore: boolean;          // archived entries must be restored first
+  needsRestore: boolean; // archived entries must be restored first
 }
 ```
 

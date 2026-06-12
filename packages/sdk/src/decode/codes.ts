@@ -22,25 +22,52 @@ export const OperationType = {
 
 /** `TransactionResultCode` → explanation. */
 export const TX_RESULT_CODES: Readonly<Record<number, CodeInfo>> = {
-  1: { name: 'txFEE_BUMP_INNER_SUCCESS', message: 'The inner transaction of a fee-bump succeeded.' },
+  1: {
+    name: 'txFEE_BUMP_INNER_SUCCESS',
+    message: 'The inner transaction of a fee-bump succeeded.',
+  },
   0: { name: 'txSUCCESS', message: 'The transaction succeeded.' },
   [-1]: { name: 'txFAILED', message: 'One or more operations failed; see the operation results.' },
-  [-2]: { name: 'txTOO_EARLY', message: 'The ledger close time is before the transaction time bounds (minTime).' },
-  [-3]: { name: 'txTOO_LATE', message: 'The ledger close time is after the transaction time bounds (maxTime).' },
+  [-2]: {
+    name: 'txTOO_EARLY',
+    message: 'The ledger close time is before the transaction time bounds (minTime).',
+  },
+  [-3]: {
+    name: 'txTOO_LATE',
+    message: 'The ledger close time is after the transaction time bounds (maxTime).',
+  },
   [-4]: { name: 'txMISSING_OPERATION', message: 'The transaction contained no operations.' },
   [-5]: { name: 'txBAD_SEQ', message: 'The sequence number does not match the source account.' },
   [-6]: { name: 'txBAD_AUTH', message: 'Too few valid signatures, or the wrong network was used.' },
-  [-7]: { name: 'txINSUFFICIENT_BALANCE', message: 'The fee would bring the source account below the minimum reserve.' },
+  [-7]: {
+    name: 'txINSUFFICIENT_BALANCE',
+    message: 'The fee would bring the source account below the minimum reserve.',
+  },
   [-8]: { name: 'txNO_ACCOUNT', message: 'The source account does not exist.' },
   [-9]: { name: 'txINSUFFICIENT_FEE', message: 'The fee is below the network-required minimum.' },
-  [-10]: { name: 'txBAD_AUTH_EXTRA', message: 'There are unused signatures attached to the transaction.' },
+  [-10]: {
+    name: 'txBAD_AUTH_EXTRA',
+    message: 'There are unused signatures attached to the transaction.',
+  },
   [-11]: { name: 'txINTERNAL_ERROR', message: 'An unknown error occurred inside the core node.' },
-  [-12]: { name: 'txNOT_SUPPORTED', message: 'The transaction type is not supported by the network.' },
-  [-13]: { name: 'txFEE_BUMP_INNER_FAILED', message: 'The inner transaction of a fee-bump failed.' },
+  [-12]: {
+    name: 'txNOT_SUPPORTED',
+    message: 'The transaction type is not supported by the network.',
+  },
+  [-13]: {
+    name: 'txFEE_BUMP_INNER_FAILED',
+    message: 'The inner transaction of a fee-bump failed.',
+  },
   [-14]: { name: 'txBAD_SPONSORSHIP', message: 'The sponsorship is not in the expected state.' },
-  [-15]: { name: 'txBAD_MIN_SEQ_AGE_OR_GAP', message: 'The minSeqAge or minSeqLedgerGap condition was not met.' },
+  [-15]: {
+    name: 'txBAD_MIN_SEQ_AGE_OR_GAP',
+    message: 'The minSeqAge or minSeqLedgerGap condition was not met.',
+  },
   [-16]: { name: 'txMALFORMED', message: 'The transaction is malformed.' },
-  [-17]: { name: 'txSOROBAN_INVALID', message: 'The Soroban transaction is invalid (bad resources, footprint, or auth).' },
+  [-17]: {
+    name: 'txSOROBAN_INVALID',
+    message: 'The Soroban transaction is invalid (bad resources, footprint, or auth).',
+  },
 };
 
 /** `OperationResultCode` → explanation (the outer operation envelope). */
@@ -49,8 +76,14 @@ export const OP_RESULT_CODES: Readonly<Record<number, CodeInfo>> = {
   [-1]: { name: 'opBAD_AUTH', message: 'Too few valid signatures to authorize the operation.' },
   [-2]: { name: 'opNO_ACCOUNT', message: "The operation's source account does not exist." },
   [-3]: { name: 'opNOT_SUPPORTED', message: 'The operation is not supported at this time.' },
-  [-4]: { name: 'opTOO_MANY_SUBENTRIES', message: 'The operation would exceed the account subentry limit.' },
-  [-5]: { name: 'opEXCEEDED_WORK_LIMIT', message: 'The operation did too much work (sponsorship traversal limit).' },
+  [-4]: {
+    name: 'opTOO_MANY_SUBENTRIES',
+    message: 'The operation would exceed the account subentry limit.',
+  },
+  [-5]: {
+    name: 'opEXCEEDED_WORK_LIMIT',
+    message: 'The operation did too much work (sponsorship traversal limit).',
+  },
   [-6]: { name: 'opTOO_MANY_SPONSORING', message: 'The account is sponsoring too many entries.' },
 };
 
@@ -88,26 +121,53 @@ export const OPERATION_TYPE_NAMES: Readonly<Record<number, string>> = {
 /** `InvokeHostFunctionResultCode` → explanation. */
 export const INVOKE_HOST_FUNCTION_CODES: Readonly<Record<number, CodeInfo>> = {
   0: { name: 'INVOKE_HOST_FUNCTION_SUCCESS', message: 'The host function invocation succeeded.' },
-  [-1]: { name: 'INVOKE_HOST_FUNCTION_MALFORMED', message: 'The host function or its arguments were malformed.' },
-  [-2]: { name: 'INVOKE_HOST_FUNCTION_TRAPPED', message: 'The contract trapped (panicked) during execution.' },
-  [-3]: { name: 'INVOKE_HOST_FUNCTION_RESOURCE_LIMIT_EXCEEDED', message: 'Execution exceeded the declared resource (CPU/memory) budget.' },
-  [-4]: { name: 'INVOKE_HOST_FUNCTION_ENTRY_ARCHIVED', message: 'A required ledger entry is archived and must be restored first.' },
+  [-1]: {
+    name: 'INVOKE_HOST_FUNCTION_MALFORMED',
+    message: 'The host function or its arguments were malformed.',
+  },
+  [-2]: {
+    name: 'INVOKE_HOST_FUNCTION_TRAPPED',
+    message: 'The contract trapped (panicked) during execution.',
+  },
+  [-3]: {
+    name: 'INVOKE_HOST_FUNCTION_RESOURCE_LIMIT_EXCEEDED',
+    message: 'Execution exceeded the declared resource (CPU/memory) budget.',
+  },
+  [-4]: {
+    name: 'INVOKE_HOST_FUNCTION_ENTRY_ARCHIVED',
+    message: 'A required ledger entry is archived and must be restored first.',
+  },
 };
 
 /** `ExtendFootprintTTLResultCode` → explanation. */
 export const EXTEND_FOOTPRINT_TTL_CODES: Readonly<Record<number, CodeInfo>> = {
   0: { name: 'EXTEND_FOOTPRINT_TTL_SUCCESS', message: 'The TTL extension succeeded.' },
-  [-1]: { name: 'EXTEND_FOOTPRINT_TTL_MALFORMED', message: 'The TTL extension operation was malformed.' },
-  [-2]: { name: 'EXTEND_FOOTPRINT_TTL_RESOURCE_LIMIT_EXCEEDED', message: 'The TTL extension exceeded the resource budget.' },
-  [-3]: { name: 'EXTEND_FOOTPRINT_TTL_INSUFFICIENT_REFUNDABLE_FEE', message: 'The refundable fee was too low to cover the TTL extension.' },
+  [-1]: {
+    name: 'EXTEND_FOOTPRINT_TTL_MALFORMED',
+    message: 'The TTL extension operation was malformed.',
+  },
+  [-2]: {
+    name: 'EXTEND_FOOTPRINT_TTL_RESOURCE_LIMIT_EXCEEDED',
+    message: 'The TTL extension exceeded the resource budget.',
+  },
+  [-3]: {
+    name: 'EXTEND_FOOTPRINT_TTL_INSUFFICIENT_REFUNDABLE_FEE',
+    message: 'The refundable fee was too low to cover the TTL extension.',
+  },
 };
 
 /** `RestoreFootprintResultCode` → explanation. */
 export const RESTORE_FOOTPRINT_CODES: Readonly<Record<number, CodeInfo>> = {
   0: { name: 'RESTORE_FOOTPRINT_SUCCESS', message: 'The footprint restoration succeeded.' },
   [-1]: { name: 'RESTORE_FOOTPRINT_MALFORMED', message: 'The restore operation was malformed.' },
-  [-2]: { name: 'RESTORE_FOOTPRINT_RESOURCE_LIMIT_EXCEEDED', message: 'The restore operation exceeded the resource budget.' },
-  [-3]: { name: 'RESTORE_FOOTPRINT_INSUFFICIENT_REFUNDABLE_FEE', message: 'The refundable fee was too low to cover the restore.' },
+  [-2]: {
+    name: 'RESTORE_FOOTPRINT_RESOURCE_LIMIT_EXCEEDED',
+    message: 'The restore operation exceeded the resource budget.',
+  },
+  [-3]: {
+    name: 'RESTORE_FOOTPRINT_INSUFFICIENT_REFUNDABLE_FEE',
+    message: 'The refundable fee was too low to cover the restore.',
+  },
 };
 
 /**
@@ -116,11 +176,12 @@ export const RESTORE_FOOTPRINT_CODES: Readonly<Record<number, CodeInfo>> = {
  * have `union switch(code) { case SUCCESS: ...; default: void; }` results, so
  * reading the code is enough to explain a failure.
  */
-export const SOROBAN_OP_RESULT_CODES: Readonly<Record<number, Readonly<Record<number, CodeInfo>>>> = {
-  [OperationType.INVOKE_HOST_FUNCTION]: INVOKE_HOST_FUNCTION_CODES,
-  [OperationType.EXTEND_FOOTPRINT_TTL]: EXTEND_FOOTPRINT_TTL_CODES,
-  [OperationType.RESTORE_FOOTPRINT]: RESTORE_FOOTPRINT_CODES,
-};
+export const SOROBAN_OP_RESULT_CODES: Readonly<Record<number, Readonly<Record<number, CodeInfo>>>> =
+  {
+    [OperationType.INVOKE_HOST_FUNCTION]: INVOKE_HOST_FUNCTION_CODES,
+    [OperationType.EXTEND_FOOTPRINT_TTL]: EXTEND_FOOTPRINT_TTL_CODES,
+    [OperationType.RESTORE_FOOTPRINT]: RESTORE_FOOTPRINT_CODES,
+  };
 
 /** `SCErrorType` → name + explanation (the domain a Soroban error came from). */
 export const SC_ERROR_TYPES: Readonly<Record<number, CodeInfo>> = {
@@ -138,7 +199,10 @@ export const SC_ERROR_TYPES: Readonly<Record<number, CodeInfo>> = {
 
 /** `SCErrorCode` → name + explanation (the specific failure within a domain). */
 export const SC_ERROR_CODES: Readonly<Record<number, CodeInfo>> = {
-  0: { name: 'ArithDomain', message: 'An arithmetic operation went out of range (overflow/underflow).' },
+  0: {
+    name: 'ArithDomain',
+    message: 'An arithmetic operation went out of range (overflow/underflow).',
+  },
   1: { name: 'IndexBounds', message: 'An index was out of bounds.' },
   2: { name: 'InvalidInput', message: 'The input was invalid.' },
   3: { name: 'MissingValue', message: 'A required value was missing.' },
@@ -151,6 +215,10 @@ export const SC_ERROR_CODES: Readonly<Record<number, CodeInfo>> = {
 };
 
 /** Looks up a code in a table, falling back to a generic label for unknown values. */
-export function lookup(table: Readonly<Record<number, CodeInfo>>, code: number, kind: string): CodeInfo {
+export function lookup(
+  table: Readonly<Record<number, CodeInfo>>,
+  code: number,
+  kind: string,
+): CodeInfo {
   return table[code] ?? { name: `${kind}(${code})`, message: `Unknown ${kind} code ${code}.` };
 }

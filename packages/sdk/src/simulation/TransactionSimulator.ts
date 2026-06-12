@@ -49,7 +49,10 @@ export class TransactionSimulator {
 
     const params: SimulateTransactionParams =
       options?.instructionLeeway !== undefined
-        ? { transaction: transactionXdr, resourceConfig: { instructionLeeway: options.instructionLeeway } }
+        ? {
+            transaction: transactionXdr,
+            resourceConfig: { instructionLeeway: options.instructionLeeway },
+          }
         : { transaction: transactionXdr };
 
     const raw = await this.caller.call<RawSimulateResponse>('simulateTransaction', [params]);

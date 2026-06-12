@@ -39,12 +39,12 @@ if (res.status === 'ERROR') {
 
 It accepts either:
 
-| Input | Behaviour |
-|---|---|
-| `{ errorResultXdr }` | Decoded (preferred) |
-| `{ resultXdr }` | Decoded when `errorResultXdr` is absent |
-| `{ status }` | Reported as-is when no XDR is available |
-| `string` | Treated as a base64 `TransactionResult` |
+| Input                | Behaviour                               |
+| -------------------- | --------------------------------------- |
+| `{ errorResultXdr }` | Decoded (preferred)                     |
+| `{ resultXdr }`      | Decoded when `errorResultXdr` is absent |
+| `{ status }`         | Reported as-is when no XDR is available |
+| `string`             | Treated as a base64 `TransactionResult` |
 
 ---
 
@@ -58,19 +58,19 @@ const result = decodeTransactionResult(res.errorResultXdr);
 
 ```ts
 interface DecodedTransactionResult {
-  feeCharged: bigint;          // stroops
-  code: string;                // e.g. "txFAILED", "txBAD_SEQ"
+  feeCharged: bigint; // stroops
+  code: string; // e.g. "txFAILED", "txBAD_SEQ"
   successful: boolean;
-  message: string;             // human-readable, transaction-level
+  message: string; // human-readable, transaction-level
   operations: DecodedOperationResult[];
-  partial: boolean;            // see "Coverage" below
-  raw: string;                 // original base64
+  partial: boolean; // see "Coverage" below
+  raw: string; // original base64
 }
 
 interface DecodedOperationResult {
-  code: string;                // OperationResultCode, e.g. "opINNER"
-  operationType: string | null;// e.g. "INVOKE_HOST_FUNCTION"
-  innerCode: string | null;    // e.g. "INVOKE_HOST_FUNCTION_TRAPPED"
+  code: string; // OperationResultCode, e.g. "opINNER"
+  operationType: string | null; // e.g. "INVOKE_HOST_FUNCTION"
+  innerCode: string | null; // e.g. "INVOKE_HOST_FUNCTION_TRAPPED"
   successful: boolean;
   message: string;
 }
@@ -103,10 +103,10 @@ const err = decodeScError(scvalBase64);
 ```ts
 interface DecodedScError {
   category: 'contract' | 'host';
-  type: string;                 // SCErrorType, e.g. "Contract", "WasmVm", "Budget"
-  code: number | string;        // contract code (number) or SCErrorCode name
+  type: string; // SCErrorType, e.g. "Contract", "WasmVm", "Budget"
+  code: number | string; // contract code (number) or SCErrorCode name
   isContractError: boolean;
-  contractCode: number | null;  // set for application-defined errors
+  contractCode: number | null; // set for application-defined errors
   message: string;
 }
 ```

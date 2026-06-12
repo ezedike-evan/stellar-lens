@@ -1,6 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
-import { TransactionSimulator, toSimulationResult } from '../../src/simulation/TransactionSimulator';
-import { SimulationError, type RawSimulateResponse, type RpcCaller } from '../../src/simulation/types';
+import {
+  TransactionSimulator,
+  toSimulationResult,
+} from '../../src/simulation/TransactionSimulator';
+import {
+  SimulationError,
+  type RawSimulateResponse,
+  type RpcCaller,
+} from '../../src/simulation/types';
 
 const TX_XDR = 'AAAAEXAMPLEbase64envelope==';
 
@@ -82,7 +89,9 @@ describe('TransactionSimulator', () => {
 
     it('throws SimulationError when the simulation fails', async () => {
       const caller = mockCaller({ latestLedger: 1, error: 'insufficient resources' });
-      await expect(new TransactionSimulator(caller).estimateFee(TX_XDR)).rejects.toThrow(SimulationError);
+      await expect(new TransactionSimulator(caller).estimateFee(TX_XDR)).rejects.toThrow(
+        SimulationError,
+      );
     });
   });
 });
