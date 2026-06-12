@@ -12,3 +12,18 @@ export type {
 } from './rpc/types';
 
 export { RpcNetworkError, RpcResponseError, RpcTimeoutError, RpcParseError } from './rpc/errors';
+
+export {
+  decodeTransactionResult,
+  decodeScError,
+  explainTransactionError,
+  XdrDecodeError,
+} from './decode';
+
+export type {
+  DecodedTransactionResult,
+  DecodedOperationResult,
+  DecodedScError,
+  XdrErrorCategory,
+  TransactionErrorInput,
+} from './decode';

@@ -19,6 +19,7 @@ TypeScript SDK for the Stellar network — smart RPC routing with latency-ranked
 ## Features
 
 - **Smart RPC routing** — pool multiple Soroban endpoints, rank by latency, fall back automatically on failure
+- **Human-readable XDR error decoding** — turn opaque `errorResultXdr` / `resultXdr` / `ScError` blobs into plain-English explanations, including contract error codes
 - **Typed JSON-RPC 2.0 client** — structured error classes, configurable timeouts, custom headers
 - **TypeScript-native** — full `.d.ts` declarations, no `@types/*` packages required
 - **Dual ESM + CJS build** — works in Node.js, bundlers, and edge runtimes
@@ -70,6 +71,20 @@ const client = new RpcClient({ url: 'https://soroban-testnet.stellar.org' });
 const ledger = await client.call<{ sequence: number }>('getLatestLedger');
 ```
 
+### Decode a failed Soroban transaction
+
+```ts
+import { explainTransactionError } from 'stellar-lens';
+
+const res = await client.call('sendTransaction', [signedTxXdr]);
+
+if (res.status === 'ERROR') {
+  console.error(explainTransactionError(res));
+  // → "txFAILED: One or more operations failed; see the operation results.
+  //    [op 0 · INVOKE_HOST_FUNCTION: The contract trapped (panicked) during execution.]"
+}
+```
+
 ### Typed error handling
 
 ```ts
@@ -91,6 +106,7 @@ try {
 
 - [RpcClient](./docs/rpc-client.md) — single-endpoint JSON-RPC client
 - [RpcRouter](./docs/rpc-router.md) — multi-endpoint router with health checking and fallback
+- [Error Decoding](./docs/error-decoding.md) — human-readable XDR transaction & contract error decoding
 
 ---
 
