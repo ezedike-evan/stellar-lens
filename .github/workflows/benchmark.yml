@@ -1,11 +1,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Purpose:  Detects performance regressions in RPC routing and simulation
-#           logic. Runs latency benchmarks against Soroban testnet and
-#           compares results against the main branch baseline.
+#           logic by comparing PR benchmarks against the main-branch baseline.
 #           Fails if any metric regresses by more than 20%.
+#
+#           No benchmark files exist yet (no *.bench.ts), so the job detects
+#           that and passes as a clean no-op. As soon as a *.bench.ts is added
+#           under packages/sdk, the full comparison runs automatically.
 # Triggers: pull_request targeting main
 # Paths:    packages/sdk/src/rpc/**, packages/sdk/src/simulation/**,
-#           this workflow file
+#           benchmark files, this workflow file
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: Benchmark
@@ -17,6 +20,7 @@ on:
     paths:
       - 'packages/sdk/src/rpc/**/*.ts'
       - 'packages/sdk/src/simulation/**/*.ts'
+      - 'packages/sdk/**/*.bench.ts'
       - '.github/workflows/benchmark.yml'
 
 permissions:
@@ -38,19 +42,33 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Detect benchmark files
+        id: detect
+        run: |
+          if [ -n "$(find packages/sdk -name '*.bench.ts' -print -quit 2>/dev/null)" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No *.bench.ts files found — skipping benchmark comparison."
+          fi
+
       - name: Install pnpm
+        if: steps.detect.outputs.found == 'true'
         uses: pnpm/action-setup@v6.0.8
 
       - name: Setup Node.js
+        if: steps.detect.outputs.found == 'true'
         uses: actions/setup-node@v6.3.0
         with:
           node-version: 20
 
       - name: Get pnpm store directory
+        if: steps.detect.outputs.found == 'true'
         id: pnpm-cache
         run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm store
+        if: steps.detect.outputs.found == 'true'
         uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -58,33 +76,25 @@ jobs:
           restore-keys: ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
+        if: steps.detect.outputs.found == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Run benchmarks on PR branch
-        run: pnpm --filter stellar-lens exec vitest bench --run --reporter=json --passWithNoTests > /tmp/bench-pr.json || echo '{}' > /tmp/bench-pr.json
-
-      - name: Upload PR benchmark results
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: bench-pr
-          path: /tmp/bench-pr.json
+        if: steps.detect.outputs.found == 'true'
+        run: pnpm --filter stellar-lens exec vitest bench --run --reporter=json > /tmp/bench-pr.json
 
       - name: Checkout main branch
+        if: steps.detect.outputs.found == 'true'
         run: git checkout main
 
       - name: Run benchmarks on main branch
+        if: steps.detect.outputs.found == 'true'
         run: pnpm --filter stellar-lens exec vitest bench --run --reporter=json --passWithNoTests > /tmp/bench-main.json || echo '{}' > /tmp/bench-main.json
 
-      - name: Upload main benchmark results
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: bench-main
-          path: /tmp/bench-main.json
-
       - name: Compare results and check for regressions
-        id: compare
+        if: steps.detect.outputs.found == 'true'
         run: |
-          node - <<'EOF'
+          node - <<'NODE'
           const fs = require('fs');
           const main = JSON.parse(fs.readFileSync('/tmp/bench-main.json', 'utf8'));
           const pr = JSON.parse(fs.readFileSync('/tmp/bench-pr.json', 'utf8'));
@@ -110,9 +120,9 @@ jobs:
           extractResults(main, mainResults);
           extractResults(pr, prResults);
 
-          for (const [name, baselineMean] of Object.entries(mainResults)) {
-            const prMean = prResults[name];
-            if (prMean === undefined) continue;
+          for (const [name, prMean] of Object.entries(prResults)) {
+            const baselineMean = mainResults[name];
+            if (baselineMean === undefined) continue;
             const delta = (prMean - baselineMean) / baselineMean;
             const deltaStr = (delta >= 0 ? '+' : '') + (delta * 100).toFixed(2) + '%';
             const passed = delta <= REGRESSION_THRESHOLD;
@@ -122,27 +132,12 @@ jobs:
 
           const summary = `### Benchmark Results\n\n${rows}\n${regressions > 0 ? `\n⚠️ **${regressions} regression(s) detected — threshold: 20%**` : '\n✅ No regressions detected.'}`;
           fs.writeFileSync('/tmp/bench-summary.md', summary);
-          fs.writeFileSync(process.env.GITHUB_OUTPUT || '/dev/null', `regressions=${regressions}\n`, { flag: 'a' });
           if (regressions > 0) process.exit(1);
-          EOF
-
-      - name: Read benchmark summary
-        id: bench-summary
-        if: always()
-        run: |
-          if [ -f /tmp/bench-summary.md ]; then
-            {
-              echo "content<<EOF"
-              cat /tmp/bench-summary.md
-              echo "EOF"
-            } >> "$GITHUB_OUTPUT"
-          else
-            echo "content=Benchmark results unavailable — benchmarks may not be configured yet or an earlier step failed." >> "$GITHUB_OUTPUT"
-          fi
+          NODE
 
       - name: Post benchmark comment
+        if: steps.detect.outputs.found == 'true' && always()
         uses: marocchino/sticky-pull-request-comment@v3.0.4
-        if: always()
         with:
           header: benchmark
-          message: ${{ steps.bench-summary.outputs.content }}
+          path: /tmp/bench-summary.md
