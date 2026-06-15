@@ -47,7 +47,13 @@ function generate(slug, raw) {
 let stale = []
 for (const file of readdirSync(contentDir).filter((f) => f.endsWith('.md'))) {
   const slug = file.replace(/\.md$/, '')
-  const generated = generate(slug, readFileSync(join(contentDir, file), 'utf8'))
+  const raw = readFileSync(join(contentDir, file), 'utf8')
+
+  // Skip pages that are themselves generated from another source (e.g. the
+  // error reference, generated from codes.ts) — they are site-only.
+  if (/^generated:\s*true\s*$/m.test(raw.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '')) continue
+
+  const generated = generate(slug, raw)
   const outPath = join(outDir, file)
 
   if (check) {
