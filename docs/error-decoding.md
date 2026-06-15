@@ -1,3 +1,5 @@
+<!-- Generated from packages/demo/content/api/error-decoding.md by scripts/sync-docs.mjs. Do not edit directly; run `pnpm docs:sync`. -->
+
 # XDR Error Decoding
 
 Soroban RPC reports transaction failures as opaque base64 **XDR** blobs — `errorResultXdr`

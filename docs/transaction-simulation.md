@@ -1,3 +1,5 @@
+<!-- Generated from packages/demo/content/api/transaction-simulation.md by scripts/sync-docs.mjs. Do not edit directly; run `pnpm docs:sync`. -->
+
 # Transaction Simulation
 
 `TransactionSimulator` runs a Soroban transaction through the `simulateTransaction` JSON-RPC

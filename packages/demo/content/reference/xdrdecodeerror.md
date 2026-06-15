@@ -1,0 +1,122 @@
+---
+title: XdrDecodeError
+description: Class XdrDecodeError — stellar-lens API reference.
+generated: true
+---
+
+Defined in: [packages/sdk/src/decode/types.ts:74](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/sdk/src/decode/types.ts#L74)
+
+Thrown when an XDR blob cannot be decoded — malformed base64, truncated
+bytes, or an unexpected/unknown discriminant where a known one is required.
+
+## Extends
+
+- `Error`
+
+## Constructors
+
+### Constructor
+
+> **new XdrDecodeError**(`message`, `offset?`): `XdrDecodeError`
+
+Defined in: [packages/sdk/src/decode/types.ts:78](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/sdk/src/decode/types.ts#L78)
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### offset?
+
+`number` \| `null`
+
+#### Returns
+
+`XdrDecodeError`
+
+#### Overrides
+
+`Error.constructor`
+
+## Properties
+
+### cause?
+
+> `optional` **cause?**: `unknown`
+
+Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/lib.es2022.error.d.ts:24
+
+#### Inherited from
+
+`Error.cause`
+
+***
+
+### message
+
+> **message**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/lib.es5.d.ts:1075
+
+#### Inherited from
+
+`Error.message`
+
+***
+
+### name
+
+> **name**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/lib.es5.d.ts:1074
+
+#### Inherited from
+
+`Error.name`
+
+***
+
+### offset
+
+> `readonly` **offset**: `number` \| `null`
+
+Defined in: [packages/sdk/src/decode/types.ts:76](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/sdk/src/decode/types.ts#L76)
+
+The byte offset at which decoding failed, when known.
+
+***
+
+### stack?
+
+> `optional` **stack?**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/lib.es5.d.ts:1076
+
+#### Inherited from
+
+`Error.stack`
+
+## Methods
+
+### isError()
+
+> `static` **isError**(`error`): `error is Error`
+
+Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/lib.esnext.error.d.ts:21
+
+Indicates whether the argument provided is a built-in Error instance or not.
+
+#### Parameters
+
+##### error
+
+`unknown`
+
+#### Returns
+
+`error is Error`
+
+#### Inherited from
+
+`Error.isError`

@@ -14,6 +14,12 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint 'packages/*/src/**/*.ts'",
     "format": "prettier --write 'packages/*/src/**/*.ts'",
+    "docs:sync": "node scripts/sync-docs.mjs",
+    "docs:check": "node scripts/sync-docs.mjs --check",
+    "docs:errors": "tsx scripts/gen-error-reference.ts",
+    "docs:api": "node scripts/gen-api-reference.mjs",
+    "docs:test": "node scripts/check-doc-examples.mjs",
+    "docs:gen": "pnpm docs:errors && pnpm docs:api && pnpm docs:sync",
     "changeset": "changeset",
     "version": "changeset version && pnpm install",
     "release": "turbo run build && changeset publish"
@@ -23,7 +29,9 @@
   "license": "MIT",
   "packageManager": "pnpm@10.22.0",
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
@@ -33,7 +41,10 @@
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.2",
+    "tsx": "^4.22.4",
     "turbo": "^2.9.6",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.12.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
   }

@@ -1,6 +1,9 @@
 import { notFound, redirect } from 'next/navigation'
 import { getDocPage } from '@/lib/docs'
 import { allDocPages } from '@/lib/docroutes'
+import DocEnhancements from '@/components/docs/DocEnhancements'
+
+const EDIT_BASE = 'https://github.com/ezedike-evan/stellar-lens/edit/main/packages/demo/content'
 
 type Props = {
   params: Promise<{ slug?: string[] }>
@@ -12,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
   const page = await getDocPage(slug)
   if (!page) return {}
   return {
-    title: `${page.title} — StellarLens Docs`,
+    title: page.title,
     description: page.description,
   }
 }
@@ -62,6 +65,21 @@ export default async function DocPage({ params }: Props) {
         className="doc-content"
         dangerouslySetInnerHTML={{ __html: page.content }}
       />
+      <DocEnhancements />
+
+      {/* Edit on GitHub (hand-authored pages only) */}
+      {!page.generated && (
+        <div className="mt-12 pt-6 border-t border-white/[0.06]">
+          <a
+            href={`${EDIT_BASE}/${slug.join('/')}.md`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs text-white/35 hover:text-accent transition-colors"
+          >
+            Edit this page on GitHub
+          </a>
+        </div>
+      )}
 
       {/* Pagination */}
       <nav className="flex items-start justify-between mt-20 pt-8 border-t border-white/[0.08] gap-4">

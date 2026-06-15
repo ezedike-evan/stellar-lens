@@ -37,6 +37,16 @@ export default function AIPanel({ open, onClose }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, thinking])
 
+  // Close on Escape while open
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [open, onClose])
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || thinking) return
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text }
@@ -67,6 +77,10 @@ export default function AIPanel({ open, onClose }: Props) {
 
       {/* Panel */}
       <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="AI assistant"
+        aria-hidden={!open}
         className={`fixed top-[60px] right-0 bottom-0 z-[55] w-80 bg-[#0d0d0d] border-l border-white/[0.08] flex flex-col transition-transform duration-250 ease-in-out ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}

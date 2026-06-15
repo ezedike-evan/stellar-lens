@@ -96,7 +96,12 @@ export default function SearchDialog({ open, onClose }: Props) {
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-2xl bg-[#0e0e0e] border border-white/[0.14] rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8)] overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search documentation"
+        className="relative w-full max-w-2xl bg-[#0e0e0e] border border-white/[0.14] rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8)] overflow-hidden"
+      >
 
         {/* Input row */}
         <div className="flex items-center gap-3 px-5 h-14 border-b border-white/[0.08]">
