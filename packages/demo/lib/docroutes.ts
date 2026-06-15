@@ -22,6 +22,8 @@ export const docSections: DocSection[] = [
     items: [
       { title: 'RpcClient', href: '/docs/api/rpc-client' },
       { title: 'RpcRouter', href: '/docs/api/rpc-router' },
+      { title: 'Transaction Simulation', href: '/docs/api/transaction-simulation' },
+      { title: 'XDR Error Decoding', href: '/docs/api/error-decoding' },
     ],
   },
 ]

@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Instrument_Serif } from 'next/font/google'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { Analytics } from '@vercel/analytics/next'
+import { siteUrl, siteName, siteDescription } from '@/lib/site'
 import './globals.css'
 
 const instrumentSerif = Instrument_Serif({
@@ -12,10 +14,29 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
 })
 
+const title = 'StellarLens — Soroban RPC SDK for Stellar developers'
+
 export const metadata: Metadata = {
-  title: 'StellarLens — Soroban RPC SDK for Stellar developers',
-  description:
-    'Smart RPC routing with automatic latency-ranked fallback, Soroban transaction pre-flight simulation, and human-readable XDR error decoding.',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: title,
+    template: '%s — StellarLens Docs',
+  },
+  description: siteDescription,
+  applicationName: siteName,
+  openGraph: {
+    type: 'website',
+    siteName,
+    title,
+    description: siteDescription,
+    url: siteUrl,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description: siteDescription,
+  },
+  robots: { index: true, follow: true },
 }
 
 export default function RootLayout({
@@ -28,7 +49,10 @@ export default function RootLayout({
       lang="en"
       className={`${instrumentSerif.variable} ${GeistSans.variable} ${GeistMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

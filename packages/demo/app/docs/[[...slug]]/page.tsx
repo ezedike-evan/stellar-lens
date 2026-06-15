@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props) {
   const page = await getDocPage(slug)
   if (!page) return {}
   return {
-    title: `${page.title} — StellarLens Docs`,
+    title: page.title,
     description: page.description,
   }
 }

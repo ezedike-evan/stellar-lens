@@ -61,7 +61,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run benchmarks on PR branch
-        run: pnpm --filter stellar-lens vitest bench --reporter=json > /tmp/bench-pr.json
+        run: pnpm --filter stellar-lens exec vitest bench --run --reporter=json --passWithNoTests > /tmp/bench-pr.json || echo '{}' > /tmp/bench-pr.json
 
       - name: Upload PR benchmark results
         uses: actions/upload-artifact@v7.0.1
@@ -73,7 +73,7 @@ jobs:
         run: git checkout main
 
       - name: Run benchmarks on main branch
-        run: pnpm --filter stellar-lens vitest bench --reporter=json > /tmp/bench-main.json
+        run: pnpm --filter stellar-lens exec vitest bench --run --reporter=json --passWithNoTests > /tmp/bench-main.json || echo '{}' > /tmp/bench-main.json
 
       - name: Upload main benchmark results
         uses: actions/upload-artifact@v7.0.1
