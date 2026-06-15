@@ -1,3 +1,5 @@
+<!-- Generated from packages/demo/content/api/rpc-router.md by scripts/sync-docs.mjs. Do not edit directly; run `pnpm docs:sync`. -->
+
 # RpcRouter
 
 `RpcRouter` manages a pool of Soroban RPC endpoints and automatically routes calls to the fastest, healthiest one. On startup it pings every endpoint to measure latency, ranks them fastest-first, and re-checks the pool on a configurable interval. When a call fails due to a network or timeout error, the router advances to the next endpoint and retries — all transparently to the caller.
