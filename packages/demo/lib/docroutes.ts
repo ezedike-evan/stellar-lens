@@ -22,6 +22,17 @@ export const docSections: DocSection[] = [
   {
     title: 'Guides',
     items: [
+      { title: 'Core Concepts', href: '/docs/guides/core-concepts' },
+      { title: 'Resilient RPC Routing', href: '/docs/guides/resilient-routing' },
+      { title: 'Simulating & Submitting Transactions', href: '/docs/guides/simulating-transactions' },
+      { title: 'Handling Failed Transactions', href: '/docs/guides/handling-errors' },
+      { title: 'Networks', href: '/docs/guides/networks' },
+      { title: 'Stability & Versioning', href: '/docs/guides/versioning' },
+    ],
+  },
+  {
+    title: 'Modules',
+    items: [
       { title: 'RpcClient', href: '/docs/api/rpc-client' },
       { title: 'RpcRouter', href: '/docs/api/rpc-router' },
       { title: 'Transaction Simulation', href: '/docs/api/transaction-simulation' },

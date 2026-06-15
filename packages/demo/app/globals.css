@@ -161,3 +161,106 @@ body {
   color: #f2f2f2;
   font-weight: 600;
 }
+
+/* ── Code-block copy button ── */
+.doc-content pre {
+  position: relative;
+}
+.doc-content .copy-btn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-family: var(--font-sans);
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.doc-content pre:hover .copy-btn,
+.doc-content .copy-btn:focus-visible {
+  opacity: 1;
+}
+.doc-content .copy-btn:hover {
+  color: #e8ff47;
+  border-color: rgba(232, 255, 71, 0.4);
+}
+
+/* ── Heading anchor links ── */
+.doc-content h2,
+.doc-content h3,
+.doc-content h4 {
+  position: relative;
+}
+.doc-content .heading-anchor {
+  position: absolute;
+  left: -1.1rem;
+  color: rgba(232, 255, 71, 0.5);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.doc-content h2:hover .heading-anchor,
+.doc-content h3:hover .heading-anchor,
+.doc-content h4:hover .heading-anchor {
+  opacity: 1;
+}
+
+/* ── Callouts (GitHub-style alerts) ── */
+.doc-content .callout {
+  margin: 1.25rem 0;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left-width: 3px;
+  border-radius: 0 8px 8px 0;
+  background: rgba(255, 255, 255, 0.02);
+}
+.doc-content .callout .callout-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.doc-content .callout > p:last-child {
+  margin-bottom: 0;
+  color: #c4c4c4;
+  font-style: normal;
+}
+.doc-content .callout-note {
+  border-left-color: #4aa3ff;
+}
+.doc-content .callout-note .callout-title {
+  color: #4aa3ff;
+}
+.doc-content .callout-tip {
+  border-left-color: #3fd07f;
+}
+.doc-content .callout-tip .callout-title {
+  color: #3fd07f;
+}
+.doc-content .callout-important {
+  border-left-color: #c792ea;
+}
+.doc-content .callout-important .callout-title {
+  color: #c792ea;
+}
+.doc-content .callout-warning {
+  border-left-color: #e8c547;
+}
+.doc-content .callout-warning .callout-title {
+  color: #e8c547;
+}
+.doc-content .callout-caution {
+  border-left-color: #ff6b6b;
+}
+.doc-content .callout-caution .callout-title {
+  color: #ff6b6b;
+}

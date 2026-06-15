@@ -33,8 +33,34 @@ const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
     code: ['class'],
     span: ['class'],
     pre: ['class'],
+    div: ['class'],
+    p: ['class'],
     a: ['href', 'name', 'target', 'rel'],
   },
+}
+
+/** GitHub-style alert labels → callout CSS modifier. */
+const CALLOUT_KINDS: Record<string, string> = {
+  NOTE: 'note',
+  TIP: 'tip',
+  IMPORTANT: 'important',
+  WARNING: 'warning',
+  CAUTION: 'caution',
+}
+
+/**
+ * Transform GitHub-style alerts (`> [!NOTE]`) — which `marked` renders as a
+ * plain blockquote — into styled callout blocks.
+ */
+function renderCallouts(html: string): string {
+  return html.replace(
+    /<blockquote>\s*<p>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(?:<br\s*\/?>)?\s*([\s\S]*?)<\/p>\s*<\/blockquote>/g,
+    (_m, kind: string, body: string) => {
+      const mod = CALLOUT_KINDS[kind]
+      const label = kind.charAt(0) + kind.slice(1).toLowerCase()
+      return `<div class="callout callout-${mod}"><p class="callout-title">${label}</p><p>${body.trim()}</p></div>`
+    },
+  )
 }
 
 const contentDir = path.join(process.cwd(), 'content')
@@ -52,6 +78,8 @@ export type DocPage = {
   title: string
   description?: string
   content: string
+  /** True for pages generated from source (no "edit on GitHub" affordance). */
+  generated?: boolean
 }
 
 export async function getDocPage(slug: string[]): Promise<DocPage | null> {
@@ -72,11 +100,12 @@ export async function getDocPage(slug: string[]): Promise<DocPage | null> {
     }
   )
 
-  const html = sanitizeHtml(withIds, SANITIZE_OPTIONS)
+  const html = sanitizeHtml(renderCallouts(withIds), SANITIZE_OPTIONS)
 
   return {
     title: (fm.title as string) || 'Untitled',
     description: fm.description as string | undefined,
     content: html,
+    generated: fm.generated === true,
   }
 }

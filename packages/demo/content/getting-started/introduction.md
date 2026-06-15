@@ -11,6 +11,11 @@ Every module is built on a small, composable primitive stack:
 
 - **`RpcClient`** — a low-level JSON-RPC 2.0 client with typed errors and configurable timeouts
 - **`RpcRouter`** — a connection pool that pings multiple endpoints, ranks them by latency, and retries on failure
+- **`TransactionSimulator`** — pre-flight a Soroban transaction for fee, cost, footprint, auth, and return value
+- **Error decoding** — turn opaque XDR error blobs into plain-English explanations
+
+For the full mental model — and what StellarLens deliberately does *not* do — see
+[Core Concepts](/docs/guides/core-concepts).
 
 ## Why StellarLens?
 
@@ -42,5 +47,5 @@ Soroban RPC endpoint (SDF / Ankr / Blockdaemon / Validation Cloud / …)
 
 - [Installation](/docs/getting-started/installation) — add `stellar-lens` to your project
 - [Quick Start](/docs/getting-started/quick-start) — make your first RPC call in under 5 minutes
-- [RpcClient](/docs/api/rpc-client) — full API reference for the low-level client
-- [RpcRouter](/docs/api/rpc-router) — full API reference for the resilient router
+- [Core Concepts](/docs/guides/core-concepts) — the mental model and architecture
+- [Simulating & Submitting Transactions](/docs/guides/simulating-transactions) — the end-to-end flow
