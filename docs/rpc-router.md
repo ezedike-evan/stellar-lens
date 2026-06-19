@@ -4,7 +4,7 @@
 
 `RpcRouter` manages a pool of Soroban RPC endpoints and automatically routes calls to the fastest, healthiest one. On startup it pings every endpoint to measure latency, ranks them fastest-first, and re-checks the pool on a configurable interval. When a call fails due to a network or timeout error, the router advances to the next endpoint and retries — all transparently to the caller.
 
-`RpcRouter` builds on top of [`RpcClient`](./rpc-client.md). Every higher-level SDK module that needs resilient RPC access — `TransactionSimulator`, `FeeEstimator` — uses a router rather than a bare client.
+`RpcRouter` builds on top of [`RpcClient`](./rpc-client.md). Every higher-level SDK module that needs resilient RPC access — such as `TransactionSimulator` — uses a router rather than a bare client.
 
 ---
 

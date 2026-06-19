@@ -2,7 +2,7 @@
 
 # RpcClient
 
-`RpcClient` is the lowest-level network primitive in the StellarLens SDK. It sends JSON-RPC 2.0 requests to a Soroban RPC endpoint over HTTP, handles timeouts, classifies network and protocol errors into typed classes, and returns the decoded result. Every higher-level SDK module — `RpcRouter`, `TransactionSimulator`, `FeeEstimator` — builds on top of `RpcClient`.
+`RpcClient` is the lowest-level network primitive in the StellarLens SDK. It sends JSON-RPC 2.0 requests to a Soroban RPC endpoint over HTTP, handles timeouts, classifies network and protocol errors into typed classes, and returns the decoded result. Every higher-level SDK module — `RpcRouter` and `TransactionSimulator` — builds on top of `RpcClient`.
 
 ---
 
