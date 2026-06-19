@@ -132,14 +132,16 @@ try {
 ```
 stellarlens/
 ├── packages/
-│   └── sdk/          # stellar-lens npm package (TypeScript)
-├── docs/             # Full API documentation
+│   ├── sdk/                # stellar-lens npm package (TypeScript)
+│   ├── demo/              # documentation site (Next.js)
+│   └── vscode-extension/  # VS Code extension (placeholder — see roadmap)
+├── docs/                  # Full API documentation (generated from packages/demo/content)
 ├── .github/
-│   └── workflows/    # CI, release, Dependabot, security scanning
+│   └── workflows/         # CI, release, Dependabot, security scanning
 └── ...
 ```
 
-Planned packages: Python SDK, Go SDK, Rust/WASM port, web demo, VS Code extension.
+Planned packages: Python SDK, Go SDK, Rust/WASM port.
 
 ---
 
