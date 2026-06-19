@@ -28,6 +28,25 @@ TypeScript SDK for the Stellar network — smart RPC routing with latency-ranked
 
 ---
 
+## Scope & Limitations
+
+StellarLens is a **read- and diagnostic-focused** companion to the official Stellar
+SDK — it deliberately covers the gaps around RPC reliability, pre-flight simulation,
+and error legibility, rather than replacing the full transaction lifecycle.
+
+- **It does not build, sign, or submit transactions**, and it manages no keypairs or
+  accounts. Use [`@stellar/stellar-sdk`](https://github.com/stellar/js-stellar-sdk)
+  (or `@stellar/stellar-base`) to construct and sign the `TransactionEnvelope` XDR,
+  then pass that XDR to StellarLens to simulate it or decode its result.
+- **XDR is decoded, not encoded.** The decoder reads result/error blobs; it does not
+  produce XDR.
+- **Soroban-focused decoding.** Soroban operation results are fully decoded; classic
+  (non-Soroban) operation results are reported with `partial: true` (the
+  transaction-level verdict is still accurate).
+- **Pre-1.0.** The API may change between minor versions until `1.0.0`.
+
+---
+
 ## Installation
 
 ```sh
