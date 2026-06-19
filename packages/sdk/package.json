@@ -25,9 +25,31 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "prepublishOnly": "pnpm build && pnpm test"
   },
-  "keywords": [],
+  "keywords": [
+    "stellar",
+    "soroban",
+    "stellar-sdk",
+    "blockchain",
+    "rpc",
+    "json-rpc",
+    "xdr",
+    "smart-contracts",
+    "transaction-simulation",
+    "fee-estimation",
+    "error-decoding",
+    "typescript"
+  ],
   "author": "Ezedike-Evan <egwomevan323@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezedike-evan/stellar-lens.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/ezedike-evan/stellar-lens#readme",
+  "bugs": {
+    "url": "https://github.com/ezedike-evan/stellar-lens/issues"
+  },
   "packageManager": "pnpm@10.22.0",
   "engines": {
     "node": ">=18"
