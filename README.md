@@ -166,7 +166,9 @@ Planned packages: Python SDK, Go SDK, Rust/WASM port.
 
 ## Development
 
-**Prerequisites:** Node.js ≥ 18, pnpm ≥ 10
+**Prerequisites:** Node.js 20 LTS (pinned in `.nvmrc`), pnpm ≥ 10
+
+> The published package supports Node.js ≥ 18 (see `engines`); 20 LTS is the supported toolchain for working on the repo.
 
 ```sh
 # Install dependencies
