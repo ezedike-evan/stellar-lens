@@ -89,7 +89,7 @@ jobs:
           retention-days: 7
 
       - name: Post coverage comment
-        uses: marocchino/sticky-pull-request-comment@v3.0.4
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         if: always()
         with:
           header: coverage
