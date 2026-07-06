@@ -137,7 +137,7 @@ jobs:
 
       - name: Post benchmark comment
         if: steps.detect.outputs.found == 'true' && always()
-        uses: marocchino/sticky-pull-request-comment@v3.0.4
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         with:
           header: benchmark
           path: /tmp/bench-summary.md
