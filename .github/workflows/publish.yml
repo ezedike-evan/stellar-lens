@@ -1,8 +1,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Purpose:  Fallback manual publish triggered when a GitHub Release is
-#           published. Provides a manual escape hatch if the automated
-#           Changesets release workflow fails.
-# Triggers: release event with type published only
+# Purpose:  Fallback manual publish. Provides a manual escape hatch if the
+#           automated Changesets release workflow fails: pushing a v* tag
+#           builds the SDK and publishes it to npm.
+# Triggers: push of tags matching v*
 # Paths:    None — event-driven, no path filter
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -52,6 +52,6 @@ jobs:
         run: pnpm --filter stellar-lens build
 
       - name: Publish to npm
-        run: pnpm --filter stellar-lens publish --no-git-checks --dry-run
+        run: pnpm --filter stellar-lens publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
