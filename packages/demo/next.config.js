@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // The /api/docs/search route reads content/*.md from disk at request time.
-  // Without this, those files are not traced into the serverless function and
-  // search 500s in production. Bundle them explicitly.
+  // The /api/docs/search and /api/ai routes read content/*.md from disk at
+  // request time. Without this, those files are not traced into the serverless
+  // functions and the routes 500 in production. Bundle them explicitly.
   outputFileTracingIncludes: {
     '/api/docs/search': ['./content/**/*.md'],
+    '/api/ai': ['./content/**/*.md'],
   },
 
   async headers() {
@@ -20,9 +21,9 @@ const nextConfig = {
         key: 'Permissions-Policy',
         value: 'camera=(), microphone=(), geolocation=()',
       },
-    ]
-    return [{ source: '/:path*', headers: securityHeaders }]
+    ];
+    return [{ source: '/:path*', headers: securityHeaders }];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

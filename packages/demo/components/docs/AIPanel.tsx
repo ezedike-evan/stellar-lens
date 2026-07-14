@@ -1,79 +1,98 @@
-'use client'
+'use client';
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react';
 
 type Message = {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-}
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  error?: boolean;
+};
 
 const SUGGESTED = [
   'How do I use RpcRouter with multiple endpoints?',
   'What errors does RpcClient throw?',
   'How does automatic fallback work?',
   'Getting started with stellar-lens',
-]
+];
 
 type Props = {
-  open: boolean
-  onClose: () => void
-}
+  open: boolean;
+  onClose: () => void;
+};
 
 export default function AIPanel({ open, onClose }: Props) {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [thinking, setThinking] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [thinking, setThinking] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
-      setTimeout(() => inputRef.current?.focus(), 200)
+      setTimeout(() => inputRef.current?.focus(), 200);
     }
-  }, [open])
+  }, [open]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, thinking])
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, thinking]);
 
   // Close on Escape while open
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [open, onClose])
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [open, onClose]);
 
   const sendMessage = async (text: string) => {
-    if (!text.trim() || thinking) return
-    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text }
-    setMessages((m) => [...m, userMsg])
-    setInput('')
-    setThinking(true)
+    if (!text.trim() || thinking) return;
+    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text };
+    const history = [...messages.filter((m) => !m.error), userMsg];
+    setMessages((m) => [...m, userMsg]);
+    setInput('');
+    setThinking(true);
 
-    // Placeholder: replace with real AI API call
-    await new Promise((r) => setTimeout(r, 1200))
-    const reply: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: `I can help with that! Check out the relevant documentation section for more details. If you have a specific question about **${text.toLowerCase()}**, feel free to ask and I'll point you to the right place.`,
+    let reply: Message;
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: history.map(({ role, content }) => ({ role, content })),
+        }),
+      });
+      const data = (await res.json()) as { reply?: string; error?: string };
+
+      reply =
+        res.ok && data.reply
+          ? { id: (Date.now() + 1).toString(), role: 'assistant', content: data.reply }
+          : {
+              id: (Date.now() + 1).toString(),
+              role: 'assistant',
+              content: data.error ?? 'Something went wrong — please try again.',
+              error: true,
+            };
+    } catch {
+      reply = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Could not reach the assistant — check your connection and try again.',
+        error: true,
+      };
     }
-    setMessages((m) => [...m, reply])
-    setThinking(false)
-  }
+
+    setMessages((m) => [...m, reply]);
+    setThinking(false);
+  };
 
   return (
     <>
       {/* Overlay backdrop (only on mobile) */}
-      {open && (
-        <div
-          className="fixed inset-0 z-[55] xl:hidden bg-black/40"
-          onClick={onClose}
-        />
-      )}
+      {open && <div className="fixed inset-0 z-[55] xl:hidden bg-black/40" onClick={onClose} />}
 
       {/* Panel */}
       <aside
@@ -120,7 +139,8 @@ export default function AIPanel({ open, onClose }: Props) {
                   <SparklesIcon />
                 </div>
                 <div className="bg-white/[0.05] rounded-xl rounded-tl-sm px-3 py-2.5 text-sm text-white/80 leading-relaxed">
-                  Hi! I&apos;m your StellarLens docs assistant. Ask me anything about the SDK, RPC routing, or Soroban integration.
+                  Hi! I&apos;m your StellarLens docs assistant. Ask me anything about the SDK, RPC
+                  routing, or Soroban integration.
                 </div>
               </div>
 
@@ -140,19 +160,26 @@ export default function AIPanel({ open, onClose }: Props) {
             </div>
           ) : (
             messages.map((msg) => (
-              <div key={msg.id} className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-semibold ${
-                  msg.role === 'user'
-                    ? 'bg-accent/20 text-accent'
-                    : 'bg-white/10 text-white/50'
-                }`}>
+              <div
+                key={msg.id}
+                className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+              >
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-semibold ${
+                    msg.role === 'user' ? 'bg-accent/20 text-accent' : 'bg-white/10 text-white/50'
+                  }`}
+                >
                   {msg.role === 'user' ? 'U' : <SparklesIcon />}
                 </div>
-                <div className={`max-w-[220px] rounded-xl px-3 py-2.5 text-sm leading-relaxed ${
-                  msg.role === 'user'
-                    ? 'bg-accent/10 text-accent rounded-tr-sm'
-                    : 'bg-white/[0.05] text-white/80 rounded-tl-sm'
-                }`}>
+                <div
+                  className={`max-w-[220px] rounded-xl px-3 py-2.5 text-sm leading-relaxed ${
+                    msg.role === 'user'
+                      ? 'bg-accent/10 text-accent rounded-tr-sm'
+                      : msg.error
+                        ? 'bg-red-500/10 text-red-300/90 rounded-tl-sm'
+                        : 'bg-white/[0.05] text-white/80 rounded-tl-sm'
+                  }`}
+                >
                   {msg.content}
                 </div>
               </div>
@@ -179,8 +206,8 @@ export default function AIPanel({ open, onClose }: Props) {
         <div className="flex-shrink-0 px-3 py-3 border-t border-white/[0.08]">
           <form
             onSubmit={(e) => {
-              e.preventDefault()
-              sendMessage(input)
+              e.preventDefault();
+              sendMessage(input);
             }}
             className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2.5 focus-within:border-white/20 transition-colors"
           >
@@ -207,29 +234,59 @@ export default function AIPanel({ open, onClose }: Props) {
         </div>
       </aside>
     </>
-  )
+  );
 }
 
 function SparklesIcon() {
   return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent">
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-accent"
+    >
       <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
     </svg>
-  )
+  );
 }
 
 function XIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
-  )
+  );
 }
 
 function SendIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 2L11 13" /><path d="M22 2L15 22l-4-9-9-4 20-7z" />
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 2L11 13" />
+      <path d="M22 2L15 22l-4-9-9-4 20-7z" />
     </svg>
-  )
+  );
 }

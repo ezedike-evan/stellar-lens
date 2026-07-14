@@ -1,16 +1,39 @@
-# StellarLens Demo — Placeholder
+# StellarLens Docs Site
 
-This package is reserved for the StellarLens web demo, which will be
-implemented in **Stage 3** of the project roadmap.
+Next.js 16 documentation site for the [`stellar-lens`](../sdk) SDK: rendered
+markdown docs, full-text search, and an optional AI docs assistant.
 
-When complete, this package will contain a React 18 + Vite + Tailwind
-application that showcases the StellarLens SDK with three components:
+## Structure
 
-- `SimulationPanel` — paste a transaction, simulate it, see the result
-- `RpcDashboard` — live latency and health for every Stellar RPC provider
-- `ResultDisplay` — decoded error message with actionable suggestion
+- `content/` — markdown source for every docs page (getting started, guides,
+  module docs, generated API reference)
+- `app/docs/[[...slug]]` — docs pages rendered from `content/` via `lib/docs.ts`
+  (marked + sanitize-html)
+- `app/api/docs/search` — keyword search over `content/*.md`
+- `app/api/ai` — docs assistant backed by the Groq API, grounded in `content/`
+- `components/docs/` — navbar, sidebar, table of contents, search dialog,
+  AI panel
 
-The demo will import `stellar-lens` as a workspace dependency and will
-be deployed publicly via Vercel.
+## Development
 
-See the project roadmap for full details.
+```sh
+pnpm install
+pnpm --filter @stellar-lens/docs dev
+```
+
+## Environment
+
+The AI assistant is optional. Without a key the panel reports that the
+assistant is not configured — everything else works normally.
+
+| Variable       | Required | Description                                       |
+| -------------- | -------- | ------------------------------------------------- |
+| `GROQ_API_KEY` | No       | Groq API key; enables `/api/ai`                   |
+| `GROQ_MODEL`   | No       | Groq model id (default `llama-3.3-70b-versatile`) |
+
+Copy `.env.example` to `.env.local` and fill in values.
+
+## Deployment
+
+Deployed on Vercel. `next.config.js` traces `content/**/*.md` into the
+search and AI serverless functions — keep that in sync if routes move.
