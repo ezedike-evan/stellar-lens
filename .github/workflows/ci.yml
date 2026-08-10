@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
+        uses: pnpm/action-setup@v6.0.10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6.4.0
@@ -85,7 +85,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
+        uses: pnpm/action-setup@v6.0.10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6.4.0
@@ -118,7 +118,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
+        uses: pnpm/action-setup@v6.0.10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6.4.0
@@ -152,7 +152,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
+        uses: pnpm/action-setup@v6.0.10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6.4.0
@@ -185,7 +185,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
+        uses: pnpm/action-setup@v6.0.10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6.4.0
